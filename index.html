@@ -94,21 +94,16 @@
     ];
     let currentTrack = 0;
 
-    musicTracks.forEach(track => {
-      track.volume = 0.5;
-      track.loop = false;
-    });
+musicTracks.forEach((track, index) => {
+  track.volume = 0.5;
+  track.loop = false;
+  track.addEventListener("ended", () => {
+    currentTrack = (currentTrack + 1) % musicTracks.length;
+    musicTracks[currentTrack].play();
+  });
+});
 
-    musicTracks[0].addEventListener("ended", () => {
-      currentTrack = 1;
-      musicTracks[1].play();
-    });
-    musicTracks[1].addEventListener("ended", () => {
-      currentTrack = 0;
-      musicTracks[0].play();
-    });
-
-    musicTracks[0].play();
+musicTracks[currentTrack].play();
 
     function toggleMusic() {
       if (musicTracks[currentTrack].paused) {
