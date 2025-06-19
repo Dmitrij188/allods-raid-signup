@@ -64,7 +64,7 @@
   <h1>Рейды Аллоды Онлайн</h1>
   <button class="music-toggle" onclick="toggleMusic()" id="musicBtn">Выключить музыку</button>
 
-  <audio id="bg-music" autoplay></audio>
+  <audio id="bg-music"></audio>
 
   <div id="raids"></div>
   <button class="btn btn-admin" onclick="createRaid()">+ Создать новый рейд</button>
@@ -78,20 +78,39 @@
     const bgMusic = document.getElementById("bg-music");
     const musicBtn = document.getElementById("musicBtn");
 
-    function playNextTrack() {
-      currentTrack = (currentTrack + 1) % musicTracks.length;
-      bgMusic.src = musicTracks[currentTrack];
-      bgMusic.play();
+    function playTrack(index) {
+      bgMusic.src = musicTracks[index];
+      bgMusic.play().then(() => {
+        musicBtn.textContent = "Выключить музыку";
+      }).catch((err) => {
+        console.log("Автовоспроизведение блокировано браузером:", err);
+        musicBtn.textContent = "Включить музыку";
+      });
     }
 
-    bgMusic.src = musicTracks[currentTrack];
+    function playNextTrack() {
+      currentTrack = (currentTrack + 1) % musicTracks.length;
+      playTrack(currentTrack);
+    }
+
     bgMusic.addEventListener("ended", playNextTrack);
-    bgMusic.play();
+
+    window.addEventListener("load", () => {
+      playTrack(currentTrack);
+      setTimeout(() => {
+        if (bgMusic.paused) {
+          musicBtn.textContent = "Включить музыку";
+        }
+      }, 500);
+    });
 
     function toggleMusic() {
       if (bgMusic.paused) {
-        bgMusic.play();
-        musicBtn.textContent = "Выключить музыку";
+        bgMusic.play().then(() => {
+          musicBtn.textContent = "Выключить музыку";
+        }).catch(() => {
+          alert("Браузер не разрешает автозапуск — нажмите кнопку ещё раз.");
+        });
       } else {
         bgMusic.pause();
         musicBtn.textContent = "Включить музыку";
