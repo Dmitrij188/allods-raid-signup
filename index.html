@@ -18,6 +18,7 @@
       color: #fff;
       font-family: 'Allods West', Arial, sans-serif;
       padding: 20px;
+      cursor: url('kursor.png'), auto;
     }
     h1, h2 {
       color: #ffc107;
@@ -54,15 +55,17 @@
       margin-top: 20px;
     }
     .roster-table {
-      width: 100%;
+      width: auto;
       border-collapse: collapse;
       margin-top: 10px;
     }
     .roster-table th,
     .roster-table td {
-      padding: 8px 12px;
+      padding: 4px 8px;
       border-bottom: 1px solid #555;
       text-align: left;
+      width: 150px;
+      white-space: nowrap;
     }
     .roster-table th {
       background-color: rgba(255, 255, 255, 0.1);
@@ -79,7 +82,6 @@
       background-color: #28a745;
       color: white;
       border: none;
-      cursor: pointer;
       border-radius: 5px;
     }
     .btn-admin {
@@ -95,7 +97,6 @@
       border: none;
       border-radius: 6px;
       color: white;
-      cursor: pointer;
     }
     .class-icon {
       width: 24px;
@@ -204,12 +205,12 @@
       const prevRole3 = role3Sel.value;
 
       roleSel.innerHTML = buildRoleOptions(allowed, false);
-      role2Sel.innerHTML = buildRoleOptions(allowed, true);
-      role3Sel.innerHTML = buildRoleOptions(allowed, true);
+      role2Sel.innerHTML = buildRoleOptions(roles, true);
+      role3Sel.innerHTML = buildRoleOptions(roles, true);
 
       if (allowed.includes(prevRole)) roleSel.value = prevRole;
-      if (prevRole2 && allowed.includes(prevRole2)) role2Sel.value = prevRole2;
-      if (prevRole3 && allowed.includes(prevRole3)) role3Sel.value = prevRole3;
+      role2Sel.value = prevRole2;
+      role3Sel.value = prevRole3;
     }
 
     function roleOption(role, label) {
@@ -260,7 +261,7 @@
         raidEl.innerHTML = `
           <h2>Рейд ${+raid.id + 1}</h2>
           <div class="form-section">
-            <label>Имя: <input type="text" id="name-${raid.id}"></label>
+            <label>Имя: <input type="text" id="name-${raid.id}" maxlength="16" minlength="3" pattern="[А-Яа-яЁё]{3,16}"></label>
             <label>Класс:
               <select id="class-${raid.id}" onchange="updateRoleOptions(${raid.id})">
                 ${classes.map(c => `<option value="${c}">${c}</option>`).join('')}
@@ -302,7 +303,9 @@
       const role2 = document.getElementById(`role2-${id}`).value;
       const role3 = document.getElementById(`role3-${id}`).value;
 
-      if (!name) return alert("Введите имя!");
+      if (!/^[А-Яа-яЁё]{3,16}$/.test(name)) {
+        return alert("Имя должно содержать от 3 до 16 русских букв без пробелов.");
+      }
 
       const currentRaid = raids.find(r => +r.id === +id);
       if (!currentRaid) return alert("Рейд не найден!");
@@ -317,7 +320,7 @@
       }
 
       const allowed = allowedRolesByClass[className] || ["ДД"];
-      if (!allowed.includes(role) || (role2 && !allowed.includes(role2)) || (role3 && !allowed.includes(role3))) {
+      if (!allowed.includes(role)) {
         return alert("Этот класс не может выполнять выбранную роль.");
       }
 
