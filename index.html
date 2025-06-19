@@ -173,6 +173,45 @@
       "Танк": "tank.png"
     };
 
+    const allowedRolesByClass = {
+      "Жрец": ["Хил", "ДД"],
+      "Друид": ["Хил", "ДД"],
+      "Некромант": ["Хил", "ДД"],
+      "Инженер": ["Сап", "ДД"],
+      "Бард": ["Сап", "ДД"],
+      "Паладин": ["Танк", "ДД"],
+      "Демонолог": ["Танк", "ДД"],
+      "Воин": ["Танк", "ДД"],
+      "Лучник": ["ДД"],
+      "Мистик": ["ДД"],
+      "Маг": ["ДД"]
+    };
+
+    function buildRoleOptions(arr, includeEmpty) {
+      const empty = includeEmpty ? '<option value="">—</option>' : '';
+      return empty + arr.map(r => `<option>${r}</option>`).join('');
+    }
+
+    function updateRoleOptions(id) {
+      const className = document.getElementById(`class-${id}`).value;
+      const allowed = allowedRolesByClass[className] || ["ДД"];
+      const roleSel = document.getElementById(`role-${id}`);
+      const role2Sel = document.getElementById(`role2-${id}`);
+      const role3Sel = document.getElementById(`role3-${id}`);
+
+      const prevRole = roleSel.value;
+      const prevRole2 = role2Sel.value;
+      const prevRole3 = role3Sel.value;
+
+      roleSel.innerHTML = buildRoleOptions(allowed, false);
+      role2Sel.innerHTML = buildRoleOptions(allowed, true);
+      role3Sel.innerHTML = buildRoleOptions(allowed, true);
+
+      if (allowed.includes(prevRole)) roleSel.value = prevRole;
+      if (prevRole2 && allowed.includes(prevRole2)) role2Sel.value = prevRole2;
+      if (prevRole3 && allowed.includes(prevRole3)) role3Sel.value = prevRole3;
+    }
+
     function roleOption(role, label) {
       const icon = roleIcons[role] ? `<img src="${roleIcons[role]}" class="role-icon">` : "";
       return `<span class='role-label'>${icon}${label}</span>`;
@@ -223,7 +262,7 @@
           <div class="form-section">
             <label>Имя: <input type="text" id="name-${raid.id}"></label>
             <label>Класс:
-              <select id="class-${raid.id}">
+              <select id="class-${raid.id}" onchange="updateRoleOptions(${raid.id})">
                 ${classes.map(c => `<option value="${c}">${c}</option>`).join('')}
               </select>
             </label>
@@ -252,6 +291,7 @@
           </div>
         `;
         raidsDiv.appendChild(raidEl);
+        updateRoleOptions(raid.id);
       });
     }
 
@@ -274,6 +314,11 @@
       const duplicate = currentRaid.roster.some(p => p.name.toLowerCase() === name.toLowerCase());
       if (duplicate) {
         return alert("Вы уже записаны в этот рейд.");
+      }
+
+      const allowed = allowedRolesByClass[className] || ["ДД"];
+      if (!allowed.includes(role) || (role2 && !allowed.includes(role2)) || (role3 && !allowed.includes(role3))) {
+        return alert("Этот класс не может выполнять выбранную роль.");
       }
 
       const payload = {
