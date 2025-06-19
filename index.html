@@ -34,15 +34,17 @@
     label, select, input {
       display: block;
       margin: 8px 0;
+      max-width: 300px;
     }
     .role-label {
       font-weight: bold;
       background-color: rgba(255, 255, 255, 0.1);
       padding: 4px;
       border-radius: 4px;
-      display: flex;
+      display: inline-flex;
       align-items: center;
       gap: 6px;
+      width: fit-content;
     }
     .role-icon {
       width: 20px;
@@ -165,7 +167,8 @@
       if (!raid.roster.length) return '<p>Пока никто не записался.</p>';
       return raid.roster.map(p => {
         const icon = classIcons[p.className] ? `<img class='class-icon' src="${classIcons[p.className]}" alt="${p.className}">` : "";
-        return `<div class='slot'>${icon}${p.name} — ${p.className} (осн: ${p.role}, доп: ${p.role2 || '-'}, крайний случай: ${p.role3 || '-'})</div>`;
+        const roleIcon = roleIcons[p.role] ? `<img class='class-icon' src="${roleIcons[p.role]}" alt="${p.role}">` : "";
+        return `<div class='slot'>${icon}${p.name} — ${p.className} ${roleIcon}(осн: ${p.role}, доп: ${p.role2 || '-'}, крайний случай: ${p.role3 || '-'})</div>`;
       }).join('');
     }
 
@@ -184,7 +187,7 @@
                 ${classes.map(c => `<option value="${c}">${c}</option>`).join('')}
               </select>
             </label>
-            <label class="role-label">${roleOption("", "Основная роль:")}
+            <label class="role-label">${roleOption("ДД", "Основная роль:")}
               <select id="role-${raid.id}">
                 ${roles.map(r => `<option>${r}</option>`).join('')}
               </select>
