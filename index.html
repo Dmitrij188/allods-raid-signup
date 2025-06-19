@@ -81,26 +81,41 @@
   <h1>Рейды Аллоды Онлайн</h1>
   <button class="music-toggle" onclick="toggleMusic()" id="musicBtn">Выключить музыку</button>
 
-  <audio id="bg-music" autoplay loop>
-    <source src="23 - IL1_TEST.mp3" type="audio/mpeg">
-    <source src="27 - MenuAmbient.mp3" type="audio/mpeg">
-  </audio>
-
   <div id="raids"></div>
   <button class="btn btn-admin" onclick="createRaid()">+ Создать новый рейд</button>
 
   <script>
     const scriptURL = 'https://script.google.com/macros/s/AKfycbwFICJTn66YG-pJgo2OdkCVbYQzH_bbR4poFfoROUBIkQgZAhXeXpcSETK0yh6cSL3k/exec';
 
-    const bgMusic = document.getElementById("bg-music");
     const musicBtn = document.getElementById("musicBtn");
+    const musicTracks = [
+      new Audio("23 - IL1_TEST.mp3"),
+      new Audio("27 - MenuAmbient.mp3")
+    ];
+    let currentTrack = 0;
+
+    musicTracks.forEach(track => {
+      track.volume = 0.5;
+      track.loop = false;
+    });
+
+    musicTracks[0].addEventListener("ended", () => {
+      currentTrack = 1;
+      musicTracks[1].play();
+    });
+    musicTracks[1].addEventListener("ended", () => {
+      currentTrack = 0;
+      musicTracks[0].play();
+    });
+
+    musicTracks[0].play();
 
     function toggleMusic() {
-      if (bgMusic.paused) {
-        bgMusic.play();
+      if (musicTracks[currentTrack].paused) {
+        musicTracks[currentTrack].play();
         musicBtn.textContent = "Выключить музыку";
       } else {
-        bgMusic.pause();
+        musicTracks.forEach(track => track.pause());
         musicBtn.textContent = "Включить музыку";
       }
     }
