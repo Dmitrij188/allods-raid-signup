@@ -75,11 +75,6 @@
       vertical-align: middle;
       margin-right: 6px;
     }
-    .class-option {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
   </style>
 </head>
 <body>
@@ -94,6 +89,8 @@
   <button class="btn btn-admin" onclick="createRaid()">+ Создать новый рейд</button>
 
   <script>
+    const scriptURL = 'https://script.google.com/macros/s/AKfycbwFICJTn66YG-pJgo2OdkCVbYQzH_bbR4poFfoROUBIkQgZAhXeXpcSETK0yh6cSL3k/exec';
+
     const bgMusic = document.getElementById("bg-music");
     const musicBtn = document.getElementById("musicBtn");
 
@@ -108,14 +105,39 @@
     }
 
     const MAX_RAIDS = 4;
+    const MAX_PLAYERS = 12;
     let raids = [];
 
-    const classes = ["Жрец", "Воин", "Паладин", "Лучник", "Мистик", "Друид", "Демонолог", "Инженер", "Некромант", "Маг"];
+    const classes = ["Жрец", "Воин", "Паладин", "Лучник", "Мистик", "Друид", "Демонолог", "Инженер", "Некромант", "Маг", "Бард"];
     const roles = ["ДД", "Хил", "Сап", "Танк"];
 
     const classIcons = {
-      "Воин": "AaXElGEQ.png"
+      "Жрец": "jrec.png",
+      "Воин": "AaXElGEQ.png",
+      "Паладин": "paladin.png",
+      "Лучник": "luchnik.png",
+      "Мистик": "mistik.png",
+      "Друид": "druid.png",
+      "Демонолог": "nekromant.png",
+      "Инженер": "inginer.png",
+      "Некромант": "nekromant.png",
+      "Маг": "mag.png",
+      "Бард": "bard.png"
     };
+
+    async function loadRoster() {
+      const res = await fetch(scriptURL);
+      const data = await res.json();
+      const grouped = {};
+      data.forEach(row => {
+        const [name, className, role, role2, role3, raidId] = row;
+        if (!grouped[raidId]) grouped[raidId] = [];
+        grouped[raidId].push({ name, className, role, role2, role3 });
+      });
+
+      raids = Object.keys(grouped).map(id => ({ id, roster: grouped[id] }));
+      renderRaids();
+    }
 
     function createRaid() {
       if (raids.length >= MAX_RAIDS) return alert("Максимум 4 рейда");
@@ -135,7 +157,7 @@
         const raidEl = document.createElement("div");
         raidEl.className = "raid-container";
         raidEl.innerHTML = `
-          <h2>Рейд ${index + 1}</h2>
+          <h2>Рейд ${+raid.id + 1}</h2>
           <div class="form-section">
             <label>Имя: <input type="text" id="name-${raid.id}"></label>
             <label>Класс:
@@ -179,7 +201,7 @@
       }).join('');
     }
 
-    function joinRaid(id) {
+    async function joinRaid(id) {
       const name = document.getElementById(`name-${id}`).value.trim();
       const className = document.getElementById(`class-${id}`).value;
       const role = document.getElementById(`role-${id}`).value;
@@ -188,20 +210,31 @@
 
       if (!name) return alert("Введите имя!");
 
-      const raid = raids[id];
-      const roleCount = raid.roster.filter(p => p.role === "Танк").length;
-      const sapCount = raid.roster.filter(p => p.role === "Сап").length;
+      const currentRaid = raids.find(r => +r.id === +id);
+      if (!currentRaid) return alert("Рейд не найден!");
 
-      if (role === "Танк" && roleCount >= 2) return alert("Максимум 2 танка");
-      if (role === "Сап" && sapCount >= 2) return alert("Максимум 2 сапа");
-      if (raid.roster.length >= 12) return alert("Рейд заполнен!");
+      if (currentRaid.roster.length >= MAX_PLAYERS) {
+        return alert("Этот рейд уже заполнен (12 игроков).");
+      }
 
-      raid.roster.push({ name, className, role, role2, role3 });
-      renderRaids();
+      const duplicate = currentRaid.roster.some(p => p.name.toLowerCase() === name.toLowerCase());
+      if (duplicate) {
+        return alert("Вы уже записаны в этот рейд.");
+      }
+
+      const payload = {
+        name, className, role, role2, role3, raidId: id
+      };
+
+      await fetch(scriptURL, {
+        method: 'POST',
+        body: JSON.stringify(payload)
+      });
+
+      await loadRoster();
     }
 
-    // Инициализация с одним рейдом
-    createRaid();
+    loadRoster();
   </script>
 </body>
 </html>
