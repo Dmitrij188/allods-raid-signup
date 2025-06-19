@@ -3,11 +3,16 @@
 <head>
   <meta charset="UTF-8">
   <title>Рейды Аллоды Онлайн</title>
+  <link href="https://fonts.cdnfonts.com/css/allods-west" rel="stylesheet">
   <style>
     body {
-      background-color: #1c1c2e;
+      background-image: url("1931c04e9200fc1f4ef619ec953247d86ddcb0fe.jpg");
+      background-size: cover;
+      background-position: center;
+      background-attachment: fixed;
+      background-repeat: no-repeat;
       color: #fff;
-      font-family: Arial, sans-serif;
+      font-family: 'Allods West', Arial, sans-serif;
       padding: 20px;
     }
     h1, h2 {
@@ -16,7 +21,7 @@
     .raid-container {
       margin-bottom: 40px;
       padding: 20px;
-      background-color: #2e2e4e;
+      background-color: rgba(46, 46, 78, 0.85);
       border-radius: 10px;
     }
     .form-section {
@@ -58,35 +63,33 @@
       color: white;
       cursor: pointer;
     }
+    .class-icon {
+      width: 24px;
+      height: 24px;
+      vertical-align: middle;
+      margin-right: 6px;
+    }
+    .class-option {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
   </style>
 </head>
 <body>
   <h1>Рейды Аллоды Онлайн</h1>
   <button class="music-toggle" onclick="toggleMusic()" id="musicBtn">Выключить музыку</button>
 
-  <audio id="bg-music" autoplay></audio>
+  <audio id="bg-music" autoplay loop>
+    <source src="23 - IL1_TEST.mp3" type="audio/mpeg">
+  </audio>
 
   <div id="raids"></div>
   <button class="btn btn-admin" onclick="createRaid()">+ Создать новый рейд</button>
 
   <script>
-    const musicTracks = [
-      "23 - IL1_TEST.mp3",
-      "27 - MenuAmbient.mp3"
-    ];
-    let currentTrack = 0;
     const bgMusic = document.getElementById("bg-music");
     const musicBtn = document.getElementById("musicBtn");
-
-    function playNextTrack() {
-      currentTrack = (currentTrack + 1) % musicTracks.length;
-      bgMusic.src = musicTracks[currentTrack];
-      bgMusic.play();
-    }
-
-    bgMusic.src = musicTracks[currentTrack];
-    bgMusic.addEventListener("ended", playNextTrack);
-    bgMusic.play();
 
     function toggleMusic() {
       if (bgMusic.paused) {
@@ -103,6 +106,11 @@
 
     const classes = ["Жрец", "Воин", "Паладин", "Лучник", "Мистик", "Друид", "Демонолог", "Инженер", "Некромант", "Маг"];
     const roles = ["ДД", "Хил", "Сап", "Танк"];
+
+    const classIcons = {
+      "Воин": "AaXElGEQ.png"
+      // остальные классы добавим позже
+    };
 
     function createRaid() {
       if (raids.length >= MAX_RAIDS) return alert("Максимум 4 рейда");
@@ -127,7 +135,7 @@
             <label>Имя: <input type="text" id="name-${raid.id}"></label>
             <label>Класс:
               <select id="class-${raid.id}">
-                ${classes.map(c => `<option>${c}</option>`).join('')}
+                ${classes.map(c => `<option value="${c}">${c}</option>`).join('')}
               </select>
             </label>
             <label>Основная роль:
@@ -160,7 +168,10 @@
 
     function renderRoster(raid) {
       if (!raid.roster.length) return '<p>Пока никто не записался.</p>';
-      return raid.roster.map(p => `<div class='slot'>${p.name} — ${p.className} (осн: ${p.role}, доп: ${p.role2 || '-'}, крайний случай: ${p.role3 || '-'})</div>`).join('');
+      return raid.roster.map(p => {
+        const icon = classIcons[p.className] ? `<img class='class-icon' src="${classIcons[p.className]}" alt="${p.className}">` : "";
+        return `<div class='slot'>${icon}${p.name} — ${p.className} (осн: ${p.role}, доп: ${p.role2 || '-'}, крайний случай: ${p.role3 || '-'})</div>`;
+      }).join('');
     }
 
     function joinRaid(id) {
