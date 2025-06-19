@@ -7,8 +7,6 @@
     @font-face {
       font-family: 'Allods West';
       src: url('allods_west.ttf') format('truetype');
-      font-weight: normal;
-      font-style: normal;
     }
 
     body {
@@ -36,6 +34,19 @@
     label, select, input {
       display: block;
       margin: 8px 0;
+    }
+    .role-label {
+      font-weight: bold;
+      background-color: rgba(255, 255, 255, 0.1);
+      padding: 4px;
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .role-icon {
+      width: 20px;
+      height: 20px;
     }
     .raid-roster {
       margin-top: 20px;
@@ -95,17 +106,17 @@
       new Audio("5fc0f2c121559.mp3")
     ];
     let currentTrack = 0;
-
-musicTracks.forEach((track, index) => {
-  track.volume = 0.5;
-  track.loop = false;
-  track.addEventListener("ended", () => {
-    currentTrack = (currentTrack + 1) % musicTracks.length;
-    musicTracks[currentTrack].play();
-  });
-});
-
-musicTracks[currentTrack].play();
+    musicTracks.forEach(track => {
+      track.volume = 0.5;
+      track.loop = false;
+    });
+    musicTracks.forEach((track, index) => {
+      track.addEventListener("ended", () => {
+        currentTrack = (index + 1) % musicTracks.length;
+        musicTracks[currentTrack].play();
+      });
+    });
+    musicTracks[0].play();
 
     function toggleMusic() {
       if (musicTracks[currentTrack].paused) {
@@ -138,29 +149,24 @@ musicTracks[currentTrack].play();
       "Бард": "bard.png"
     };
 
-    async function loadRoster() {
-      const res = await fetch(scriptURL);
-      const data = await res.json();
-      const grouped = {};
-      data.forEach(row => {
-        const [name, className, role, role2, role3, raidId] = row;
-        if (!grouped[raidId]) grouped[raidId] = [];
-        grouped[raidId].push({ name, className, role, role2, role3 });
-      });
+    const roleIcons = {
+      "ДД": "atack.png",
+      "Хил": "heal.png",
+      "Сап": "support.png",
+      "Танк": "tank.png"
+    };
 
-      raids = Object.keys(grouped).map(id => ({ id, roster: grouped[id] }));
-      renderRaids();
+    function roleOption(role, label) {
+      const icon = roleIcons[role] ? `<img src="${roleIcons[role]}" class="role-icon">` : "";
+      return `<span class='role-label'>${icon}${label}</span>`;
     }
 
-    function createRaid() {
-      if (raids.length >= MAX_RAIDS) return alert("Максимум 4 рейда");
-      const raidId = raids.length;
-      const raid = {
-        id: raidId,
-        roster: []
-      };
-      raids.push(raid);
-      renderRaids();
+    function renderRoster(raid) {
+      if (!raid.roster.length) return '<p>Пока никто не записался.</p>';
+      return raid.roster.map(p => {
+        const icon = classIcons[p.className] ? `<img class='class-icon' src="${classIcons[p.className]}" alt="${p.className}">` : "";
+        return `<div class='slot'>${icon}${p.name} — ${p.className} (осн: ${p.role}, доп: ${p.role2 || '-'}, крайний случай: ${p.role3 || '-'})</div>`;
+      }).join('');
     }
 
     function renderRaids() {
@@ -178,7 +184,7 @@ musicTracks[currentTrack].play();
                 ${classes.map(c => `<option value="${c}">${c}</option>`).join('')}
               </select>
             </label>
-            <label>Основная роль:
+            <label class="role-label">${roleOption("", "Основная роль:")}
               <select id="role-${raid.id}">
                 ${roles.map(r => `<option>${r}</option>`).join('')}
               </select>
@@ -204,14 +210,6 @@ musicTracks[currentTrack].play();
         `;
         raidsDiv.appendChild(raidEl);
       });
-    }
-
-    function renderRoster(raid) {
-      if (!raid.roster.length) return '<p>Пока никто не записался.</p>';
-      return raid.roster.map(p => {
-        const icon = classIcons[p.className] ? `<img class='class-icon' src="${classIcons[p.className]}" alt="${p.className}">` : "";
-        return `<div class='slot'>${icon}${p.name} — ${p.className} (осн: ${p.role}, доп: ${p.role2 || '-'}, крайний случай: ${p.role3 || '-'})</div>`;
-      }).join('');
     }
 
     async function joinRaid(id) {
@@ -245,6 +243,31 @@ musicTracks[currentTrack].play();
       });
 
       await loadRoster();
+    }
+
+    async function loadRoster() {
+      const res = await fetch(scriptURL);
+      const data = await res.json();
+      const grouped = {};
+      data.forEach(row => {
+        const [name, className, role, role2, role3, raidId] = row;
+        if (!grouped[raidId]) grouped[raidId] = [];
+        grouped[raidId].push({ name, className, role, role2, role3 });
+      });
+
+      raids = Object.keys(grouped).map(id => ({ id, roster: grouped[id] }));
+      renderRaids();
+    }
+
+    function createRaid() {
+      if (raids.length >= MAX_RAIDS) return alert("Максимум 4 рейда");
+      const raidId = raids.length;
+      const raid = {
+        id: raidId,
+        roster: []
+      };
+      raids.push(raid);
+      renderRaids();
     }
 
     loadRoster();
