@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>Рейды Аллоды Онлайн</title>
+  <style>
+    body {
+      background-color: #1c1c2e;
+      color: #fff;
+      font-family: Arial, sans-serif;
+      padding: 20px;
+    }
+    h1, h2 {
+      color: #ffc107;
+    }
+    .raid-container {
+      margin-bottom: 40px;
+      padding: 20px;
+      background-color: #2e2e4e;
+      border-radius: 10px;
+    }
+    .form-section {
+      margin-bottom: 20px;
+    }
+    label, select, input {
+      display: block;
+      margin: 8px 0;
+    }
+    .raid-roster {
+      margin-top: 20px;
+    }
+    .slot {
+      padding: 10px;
+      margin: 5px;
+      border-radius: 6px;
+      background-color: #3a3a5c;
+    }
+    .btn {
+      padding: 10px 20px;
+      background-color: #28a745;
+      color: white;
+      border: none;
+      cursor: pointer;
+      border-radius: 5px;
+    }
+    .btn-admin {
+      background-color: #007bff;
+      margin-top: 10px;
+    }
+    .music-toggle {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background-color: #6f42c1;
+      padding: 10px 15px;
+      border: none;
+      border-radius: 6px;
+      color: white;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <h1>Рейды Аллоды Онлайн</h1>
+  <button class="music-toggle" onclick="toggleMusic()" id="musicBtn">Выключить музыку</button>
+
+  <audio id="bg-music" autoplay loop></audio>
+
+  <div id="raids"></div>
+  <button class="btn btn-admin" onclick="createRaid()">+ Создать новый рейд</button>
+
+  <script>
+    const musicTracks = [
+      "23 - IL1_TEST.mp3",
+      "27 - MenuAmbient.mp3"
+    ];
+    let currentTrack = 0;
+    const bgMusic = document.getElementById("bg-music");
+    const musicBtn = document.getElementById("musicBtn");
+
+    function playNextTrack() {
+      currentTrack = (currentTrack + 1) % musicTracks.length;
+      bgMusic.src = musicTracks[currentTrack];
+      bgMusic.play();
+    }
+
+    bgMusic.src = musicTracks[currentTrack];
+    bgMusic.addEventListener("ended", playNextTrack);
+    bgMusic.play();
+
+    function toggleMusic() {
+      if (bgMusic.paused) {
+        bgMusic.play();
+        musicBtn.textContent = "Выключить музыку";
+      } else {
+        bgMusic.pause();
+        musicBtn.textContent = "Включить музыку";
+      }
+    }
+
+    const MAX_RAIDS = 4;
+    let raids = [];
+
+    const classes = ["Жрец", "Воин", "Паладин", "Лучник", "Мистик", "Друид", "Демонолог", "Инженер", "Некромант", "Маг"];
+    const roles = ["ДД", "Хил", "Сап", "Танк"];
+
+    function createRaid() {
+      if (raids.length >= MAX_RAIDS) return alert("Максимум 4 рейда");
+      const raidId = raids.length;
+      const raid = {
+        id: raidId,
+        roster: []
+      };
+      raids.push(raid);
+      renderRaids();
+    }
+
+    function renderRaids() {
+      const raidsDiv = document.getElementById("raids");
+      raidsDiv.innerHTML = "";
+      raids.forEach((raid, index) => {
+        const raidEl = document.createElement("div");
+        raidEl.className = "raid-container";
+        raidEl.innerHTML = `
+          <h2>Рейд ${index + 1}</h2>
+          <div class="form-section">
+            <label>Имя: <input type="text" id="name-${raid.id}"></label>
+            <label>Класс:
+              <select id="class-${raid.id}">
+                ${classes.map(c => `<option>${c}</option>`).join('')}
+              </select>
+            </label>
+            <label>Основная роль:
+              <select id="role-${raid.id}">
+                ${roles.map(r => `<option>${r}</option>`).join('')}
+              </select>
+            </label>
+            <label>Доп. роль:
+              <select id="role2-${raid.id}">
+                <option value="">—</option>
+                ${roles.map(r => `<option>${r}</option>`).join('')}
+              </select>
+            </label>
+            <label>Доп. роль (крайний случай):
+              <select id="role3-${raid.id}">
+                <option value="">—</option>
+                ${roles.map(r => `<option>${r}</option>`).join('')}
+              </select>
+            </label>
+            <button class="btn" onclick="joinRaid(${raid.id})">Записаться</button>
+          </div>
+          <div class="raid-roster" id="roster-${raid.id}">
+            <h3>Состав:</h3>
+            ${renderRoster(raid)}
+          </div>
+        `;
+        raidsDiv.appendChild(raidEl);
+      });
+    }
+
+    function renderRoster(raid) {
+      if (!raid.roster.length) return '<p>Пока никто не записался.</p>';
+      return raid.roster.map(p => `<div class='slot'>${p.name} — ${p.className} (осн: ${p.role}, доп: ${p.role2 || '-'}, крайний случай: ${p.role3 || '-'})</div>`).join('');
+    }
+
+    function joinRaid(id) {
+      const name = document.getElementById(`name-${id}`).value.trim();
+      const className = document.getElementById(`class-${id}`).value;
+      const role = document.getElementById(`role-${id}`).value;
+      const role2 = document.getElementById(`role2-${id}`).value;
+      const role3 = document.getElementById(`role3-${id}`).value;
+
+      if (!name) return alert("Введите имя!");
+
+      const raid = raids[id];
+      const roleCount = raid.roster.filter(p => p.role === "Танк").length;
+      const sapCount = raid.roster.filter(p => p.role === "Сап").length;
+
+      if (role === "Танк" && roleCount >= 2) return alert("Максимум 2 танка");
+      if (role === "Сап" && sapCount >= 2) return alert("Максимум 2 сапа");
+      if (raid.roster.length >= 12) return alert("Рейд заполнен!");
+
+      raid.roster.push({ name, className, role, role2, role3 });
+      renderRaids();
+    }
+
+    // Инициализация с одним рейдом
+    createRaid();
+  </script>
+</body>
+</html>
