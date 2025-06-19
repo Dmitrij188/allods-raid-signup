@@ -53,11 +53,26 @@
     .raid-roster {
       margin-top: 20px;
     }
-    .slot {
-      padding: 10px;
-      margin: 5px;
-      border-radius: 6px;
-      background-color: #3a3a5c;
+    .roster-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+    .roster-table th,
+    .roster-table td {
+      padding: 8px 12px;
+      border-bottom: 1px solid #555;
+      text-align: left;
+    }
+    .roster-table th {
+      background-color: rgba(255, 255, 255, 0.1);
+    }
+    .roster-table tbody tr:nth-child(even) {
+      background-color: rgba(255, 255, 255, 0.05);
+    }
+    .roster-table .primary-role {
+      background-color: rgba(255, 255, 255, 0.1);
+      font-weight: bold;
     }
     .btn {
       padding: 10px 20px;
@@ -165,11 +180,36 @@
 
     function renderRoster(raid) {
       if (!raid.roster.length) return '<p>Пока никто не записался.</p>';
-      return raid.roster.map(p => {
-        const icon = classIcons[p.className] ? `<img class='class-icon' src="${classIcons[p.className]}" alt="${p.className}">` : "";
-        const roleIcon = roleIcons[p.role] ? `<img class='class-icon' src="${roleIcons[p.role]}" alt="${p.role}">` : "";
-        return `<div class='slot'>${icon}${p.name} — ${p.className} ${roleIcon}(осн: ${p.role}, доп: ${p.role2 || '-'}, крайний случай: ${p.role3 || '-'})</div>`;
+      const rows = raid.roster.map(p => {
+        const icon = classIcons[p.className] ? `<img class='class-icon' src="${classIcons[p.className]}" alt="${p.className}">` : '';
+        const roleIcon = roleIcons[p.role] ? `<img class='class-icon' src="${roleIcons[p.role]}" alt="${p.role}">` : '';
+        const role2Icon = roleIcons[p.role2] ? `<img class='class-icon' src="${roleIcons[p.role2]}" alt="${p.role2}">` : '';
+        const role3Icon = roleIcons[p.role3] ? `<img class='class-icon' src="${roleIcons[p.role3]}" alt="${p.role3}">` : '';
+        return `
+          <tr>
+            <td>${icon}${p.name}</td>
+            <td>${p.className}</td>
+            <td class='primary-role'>${roleIcon}${p.role}</td>
+            <td>${p.role2 ? `${role2Icon}${p.role2}` : '-'}</td>
+            <td>${p.role3 ? `${role3Icon}${p.role3}` : '-'}</td>
+          </tr>`;
       }).join('');
+
+      return `
+        <table class='roster-table'>
+          <thead>
+            <tr>
+              <th>Имя</th>
+              <th>Класс</th>
+              <th class='primary-role'>Осн. роль</th>
+              <th>Доп. роль</th>
+              <th>Крайний случай</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${rows}
+          </tbody>
+        </table>`;
     }
 
     function renderRaids() {
