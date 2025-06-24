@@ -409,7 +409,15 @@
         return alert("Этот рейд уже заполнен (12 игроков).");
       }
 
-      const duplicate = currentRaid.roster.some(p => p.name.toLowerCase() === name.toLowerCase());
+      const duplicate = currentRaid.roster.some(p => {
+        const sameName = p.name.toLowerCase() === name.toLowerCase();
+        if (!sameName) return false;
+        // if server information is available, compare it as well
+        if ('server' in p) {
+          return String(p.server) === String(server);
+        }
+        return true;
+      });
       if (duplicate) {
         return alert("Вы уже записаны в этот рейд.");
       }
