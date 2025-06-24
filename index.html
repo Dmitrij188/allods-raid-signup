@@ -448,11 +448,20 @@
           faction: charInfo.faction
         };
 
-      await fetch(scriptURL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-      });
+      try {
+        const res = await fetch(scriptURL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        if (!res.ok) {
+          alert('Не удалось сохранить данные в Google Sheets.');
+          return;
+        }
+      } catch (e) {
+        alert('Не удалось сохранить данные в Google Sheets.');
+        return;
+      }
 
       await loadRoster();
     }
