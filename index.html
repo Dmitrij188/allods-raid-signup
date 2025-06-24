@@ -449,6 +449,7 @@
       try {
         const res = await fetch(scriptURL, {
           method: 'POST',
+          mode: 'cors',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payload)
         });
@@ -483,7 +484,7 @@
     async function loadRoster() {
       let data;
       try {
-        const res = await fetch(scriptURL);
+        const res = await fetch(scriptURL, { mode: 'cors' });
         if (!res.ok) {
           console.error('loadRoster', res.status, res.statusText);
           alert('Не удалось загрузить список рейда.');
