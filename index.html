@@ -432,15 +432,11 @@
         className,
         role,
         role2,
-        role3,
-        server,
         raidId: id,
         level: charInfo.level,
         gearScore: charInfo.gearScore,
-        runes: JSON.stringify(charInfo.runes),
-        faction: charInfo.faction,
         guild: charInfo.guild,
-        race: charInfo.race
+        faction: charInfo.faction
       };
 
       await fetch(scriptURL, {
@@ -466,10 +462,14 @@
           }
           if (!grouped[raidId]) grouped[raidId] = [];
           grouped[raidId].push({ name, className, role, role2, role3, gearScore, runes: parsedRunes, faction, guild, race });
-        } else {
+        } else if (row.length > 9) {
           const [name, className, role, role2, role3, raidId, level, gearScore, guild, faction] = row;
           if (!grouped[raidId]) grouped[raidId] = [];
           grouped[raidId].push({ name, className, role, role2, role3, level, gearScore, guild, faction });
+        } else {
+          const [name, className, role, role2, raidId, level, gearScore, guild, faction] = row;
+          if (!grouped[raidId]) grouped[raidId] = [];
+          grouped[raidId].push({ name, className, role, role2, level, gearScore, guild, faction });
         }
       });
 
