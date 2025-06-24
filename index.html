@@ -427,17 +427,18 @@
         return alert(msg);
       }
 
-      const payload = {
-        name,
-        className,
-        role,
-        role2,
-        raidId: id,
-        level: charInfo.level,
-        gearScore: charInfo.gearScore,
-        guild: charInfo.guild,
-        faction: charInfo.faction
-      };
+        const payload = {
+          name,
+          className,
+          role,
+          role2,
+          role3,
+          raidId: id,
+          level: charInfo.level,
+          gearScore: charInfo.gearScore,
+          guild: charInfo.guild,
+          faction: charInfo.faction
+        };
 
       await fetch(scriptURL, {
         method: 'POST',
