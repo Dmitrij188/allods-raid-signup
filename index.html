@@ -460,10 +460,15 @@
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payload)
         });
-        if (!res.ok) {
+
+        const text = await res.text();
+        if (text.trim() !== 'OK') {
+          console.log('Unexpected response:', text);
           alert('Не удалось сохранить данные в Google Sheets.');
           return;
         }
+
+        console.log('Data saved successfully');
       } catch (e) {
         alert('Не удалось сохранить данные в Google Sheets.');
         return;
