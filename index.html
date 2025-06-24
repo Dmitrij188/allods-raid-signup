@@ -230,31 +230,9 @@
         }
         const data = (await charRes.json()).data;
 
-        const runes = {};
-        if (data.items) {
-          for (let i = 28; i <= 33; i++) {
-            const item = data.items[`primary-${i}`];
-            if (item && item.name) {
-              const numMatch = item.name.match(/(\d+)/);
-              let rank = numMatch ? parseInt(numMatch[1], 10) : null;
-              if (rank === null) {
-                const romanMap = {
-                  I: 1, II: 2, III: 3, IV: 4, V: 5, VI: 6,
-                  VII: 7, VIII: 8, IX: 9, X: 10, XI: 11, XII: 12, XIII: 13
-                };
-                const romanRegex = new RegExp(Object.keys(romanMap).join('|'), 'i');
-                const romanMatch = item.name.match(romanRegex);
-                if (romanMatch) rank = romanMap[romanMatch[0].toUpperCase()];
-              }
-              if (rank) runes[`primary-${i}`] = rank;
-            }
-          }
-        }
-
         return {
           level: data.level,
           gearScore: data.gear_score,
-          runes,
           faction: data.faction,
           guild: data.guild,
           race: data.race
@@ -498,24 +476,10 @@
       const grouped = {};
       data.forEach(row => {
         if (row.length > 10) {
-          const runesCandidate = row[7];
-          // rows with rune info have a JSON object/string in the 8th column
-          if (typeof runesCandidate === 'string' && /^\s*[{[]/.test(runesCandidate)) {
-            const [name, className, role, role2, role3, raidId, gearScore, runes, faction, guild, race] = row;
-            let parsedRunes;
-            try {
-              parsedRunes = JSON.parse(runes);
-            } catch (e) {
-              parsedRunes = runes;
-            }
-            if (!grouped[raidId]) grouped[raidId] = [];
-            grouped[raidId].push({ name, className, role, role2, role3, gearScore, runes: parsedRunes, faction, guild, race });
-          } else {
-            // row contains server information instead of rune info
-            const [name, className, role, role2, role3, raidId, level, gearScore, guild, faction, server] = row;
-            if (!grouped[raidId]) grouped[raidId] = [];
-            grouped[raidId].push({ name, className, role, role2, role3, level, gearScore, guild, faction, server });
-          }
+          // row contains server information
+          const [name, className, role, role2, role3, raidId, level, gearScore, guild, faction, server] = row;
+          if (!grouped[raidId]) grouped[raidId] = [];
+          grouped[raidId].push({ name, className, role, role2, role3, level, gearScore, guild, faction, server });
         } else if (row.length > 9) {
           const [name, className, role, role2, role3, raidId, level, gearScore, guild, faction] = row;
           if (!grouped[raidId]) grouped[raidId] = [];
