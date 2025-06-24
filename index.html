@@ -376,8 +376,22 @@
       const role3 = document.getElementById(`role3-${id}`).value;
       const server = document.getElementById(`server-${id}`).value;
 
+      // Mandatory fields: name, className, role and server
+
       if (!/^[А-Яа-яЁё]{3,16}$/.test(name)) {
         return alert("Имя должно содержать от 3 до 16 символов, кириллицей, без пробелов.");
+      }
+
+      if (!className) {
+        return alert('Выберите класс.');
+      }
+
+      if (!role) {
+        return alert('Укажите основную роль.');
+      }
+
+      if (!server) {
+        return alert('Выберите сервер.');
       }
 
       const currentRaid = raids.find(r => +r.id === +id);
