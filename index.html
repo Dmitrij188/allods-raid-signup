@@ -506,20 +506,34 @@
 
       const grouped = {};
       data.forEach(row => {
-        if (row.length > 10) {
-          // row contains server information
-          const [name, className, role, role2, role3, raidId, level, gearScore, guild, faction, server] = row;
-          if (!grouped[raidId]) grouped[raidId] = [];
-          grouped[raidId].push({ name, className, role, role2, role3, level, gearScore, guild, faction, server });
-        } else if (row.length > 9) {
-          const [name, className, role, role2, role3, raidId, level, gearScore, guild, faction] = row;
-          if (!grouped[raidId]) grouped[raidId] = [];
-          grouped[raidId].push({ name, className, role, role2, role3, level, gearScore, guild, faction });
-        } else {
-          const [name, className, role, role2, raidId, level, gearScore, guild, faction] = row;
-          if (!grouped[raidId]) grouped[raidId] = [];
-          grouped[raidId].push({ name, className, role, role2, level, gearScore, guild, faction });
-        }
+        const [
+          name = '',
+          className = '',
+          role = '',
+          role2 = '',
+          role3 = '',
+          raidId = '',
+          level = '',
+          gearScore = '',
+          guild = '',
+          faction = '',
+          server = ''
+        ] = row;
+
+        if (!raidId) return;
+        if (!grouped[raidId]) grouped[raidId] = [];
+        grouped[raidId].push({
+          name,
+          className,
+          role,
+          role2,
+          role3,
+          level,
+          gearScore,
+          guild,
+          faction,
+          server
+        });
       });
 
       raids = Object.keys(grouped).map(id => ({ id, roster: grouped[id] }));
