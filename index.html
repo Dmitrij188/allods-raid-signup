@@ -469,7 +469,9 @@
         }
 
         console.log('Data saved successfully');
+        console.log('Saved', payload);
       } catch (e) {
+        console.error('Signup failed', e);
         alert('Не удалось сохранить данные в Google Sheets.');
         return;
       }
