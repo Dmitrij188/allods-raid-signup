@@ -521,7 +521,17 @@
 
     function createRaid() {
       if (raids.length >= MAX_RAIDS) return alert("Максимум 4 рейда");
-      const raidId = raids.length;
+
+      // Determine the next available raid id based on the current maximum.
+      const maxId = raids.reduce((m, r) => {
+        const idNum = parseInt(r.id, 10);
+        return isNaN(idNum) ? m : Math.max(m, idNum);
+      }, -1);
+      const raidId = maxId + 1;
+
+      // Avoid id clashes if non-sequential ids are loaded from the server.
+      if (raids.some(r => String(r.id) === String(raidId))) return alert("Ошибка создания рейда");
+
       const raid = {
         id: raidId,
         roster: []
