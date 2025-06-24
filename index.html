@@ -199,7 +199,7 @@
       try {
         let searchRes;
         try {
-          searchRes = await fetch('/api/v1/armory/avatars', {
+          searchRes = await fetch('https://api.allodswiki.ru/api/v1/armory/avatars', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ filter: { name, server: serverId } })
@@ -208,19 +208,19 @@
           console.error('search api', e);
           throw new Error('network');
         }
-        const list = await searchRes.json();
+        const list = (await searchRes.json()).data || [];
         if (!Array.isArray(list) || list.length !== 1) {
           return { error: 'not_found' };
         }
         const charId = list[0].id;
         let charRes;
         try {
-          charRes = await fetch(`/api/v1/armory/avatars/${charId}`);
+          charRes = await fetch(`https://api.allodswiki.ru/api/v1/armory/avatars/${charId}`);
         } catch (e) {
           console.error('character api', e);
           throw new Error('network');
         }
-        const data = await charRes.json();
+        const data = (await charRes.json()).data;
 
         const runes = {};
         if (data.items) {
@@ -244,7 +244,7 @@
         }
 
         return {
-          gearScore: data.gearScore,
+          gearScore: data.gear_score,
           runes,
           faction: data.faction,
           guild: data.guild,
