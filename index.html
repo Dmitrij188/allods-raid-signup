@@ -208,6 +208,10 @@
           console.error('search api', e);
           throw new Error('network');
         }
+        if (!searchRes.ok) {
+          console.error('search api', searchRes.status, searchRes.statusText);
+          return { error: 'network' };
+        }
         const list = (await searchRes.json()).data || [];
         if (!Array.isArray(list) || list.length !== 1) {
           return { error: 'not_found' };
@@ -219,6 +223,10 @@
         } catch (e) {
           console.error('character api', e);
           throw new Error('network');
+        }
+        if (!charRes.ok) {
+          console.error('character api', charRes.status, charRes.statusText);
+          return { error: 'network' };
         }
         const data = (await charRes.json()).data;
 
