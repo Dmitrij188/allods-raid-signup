@@ -2,20 +2,6 @@
 
 This repository contains a static site for organizing raid signups in the game *Allods Online* along with a Google Apps Script backend.
 
-## Deploying the Google Apps Script
-
-1. Open [`raid-api.gs`](raid-api.gs) in [Google Apps Script](https://script.google.com/).
-2. Click **Deploy → New deployment**.
-3. Choose **Web app** as the deployment type.
-4. Under **Execute as**, select **Me**.
-5. Under **Who has access**, select **Anyone** (or **Anyone, even anonymous**).
-6. Deploy and authorize if prompted, then copy the **Web app URL** that is shown.
-
-Before calling `appendRow` in your script, verify that the sheet has enough
-columns for every value. Use `sheet.getMaxColumns()` and insert columns if the
-count is lower than the payload length using `sheet.insertColumnsAfter`. When
-the sheet is too narrow, `appendRow` quietly drops the later fields of the row.
-
 ## Updating `index.html`
 
 1. Open [`index.html`](index.html) and locate the line containing `scriptURL`.
