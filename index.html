@@ -450,7 +450,8 @@
           level: charInfo.level,
           gearScore: charInfo.gearScore,
           guild: charInfo.guild,
-          faction: charInfo.faction
+          faction: charInfo.faction,
+          server
         };
 
       try {
@@ -477,15 +478,24 @@
       const grouped = {};
       data.forEach(row => {
         if (row.length > 10) {
-          const [name, className, role, role2, role3, raidId, gearScore, runes, faction, guild, race] = row;
-          let parsedRunes;
-          try {
-            parsedRunes = JSON.parse(runes);
-          } catch (e) {
-            parsedRunes = runes;
+          const runesCandidate = row[7];
+          // rows with rune info have a JSON object/string in the 8th column
+          if (typeof runesCandidate === 'string' && /^\s*[{[]/.test(runesCandidate)) {
+            const [name, className, role, role2, role3, raidId, gearScore, runes, faction, guild, race] = row;
+            let parsedRunes;
+            try {
+              parsedRunes = JSON.parse(runes);
+            } catch (e) {
+              parsedRunes = runes;
+            }
+            if (!grouped[raidId]) grouped[raidId] = [];
+            grouped[raidId].push({ name, className, role, role2, role3, gearScore, runes: parsedRunes, faction, guild, race });
+          } else {
+            // row contains server information instead of rune info
+            const [name, className, role, role2, role3, raidId, level, gearScore, guild, faction, server] = row;
+            if (!grouped[raidId]) grouped[raidId] = [];
+            grouped[raidId].push({ name, className, role, role2, role3, level, gearScore, guild, faction, server });
           }
-          if (!grouped[raidId]) grouped[raidId] = [];
-          grouped[raidId].push({ name, className, role, role2, role3, gearScore, runes: parsedRunes, faction, guild, race });
         } else if (row.length > 9) {
           const [name, className, role, role2, role3, raidId, level, gearScore, guild, faction] = row;
           if (!grouped[raidId]) grouped[raidId] = [];
