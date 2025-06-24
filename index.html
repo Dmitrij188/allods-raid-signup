@@ -439,9 +439,11 @@
           body: JSON.stringify(payload)
         });
 
+        console.log('Signup status:', res.status, res.statusText);
         const text = await res.text();
+        console.log('Signup response text:', text);
         if (text.trim() !== 'OK') {
-          console.log('Unexpected response:', text);
+          console.error('Save failed', res.status, text);
           alert('Не удалось сохранить данные в Google Sheets.');
           return;
         }
