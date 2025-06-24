@@ -195,6 +195,55 @@
       "Маг": ["ДД"]
     };
 
+    async function fetchCharacterInfo(name, serverId) {
+      try {
+        const searchRes = await fetch('/api/v1/armory/avatars', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ filter: { name, server: serverId } })
+        });
+        const list = await searchRes.json();
+        if (!Array.isArray(list) || list.length !== 1) {
+          return null;
+        }
+        const charId = list[0].id;
+        const charRes = await fetch(`/api/v1/armory/avatars/${charId}`);
+        const data = await charRes.json();
+
+        const runes = {};
+        if (data.items) {
+          for (let i = 28; i <= 33; i++) {
+            const item = data.items[`primary-${i}`];
+            if (item && item.name) {
+              const numMatch = item.name.match(/(\d+)/);
+              let rank = numMatch ? parseInt(numMatch[1], 10) : null;
+              if (rank === null) {
+                const romanMap = {
+                  I: 1, II: 2, III: 3, IV: 4, V: 5, VI: 6,
+                  VII: 7, VIII: 8, IX: 9, X: 10, XI: 11, XII: 12, XIII: 13
+                };
+                const romanRegex = new RegExp(Object.keys(romanMap).join('|'), 'i');
+                const romanMatch = item.name.match(romanRegex);
+                if (romanMatch) rank = romanMap[romanMatch[0].toUpperCase()];
+              }
+              if (rank) runes[`primary-${i}`] = rank;
+            }
+          }
+        }
+
+        return {
+          gearScore: data.gearScore,
+          runes,
+          faction: data.faction,
+          guild: data.guild,
+          race: data.race
+        };
+      } catch (e) {
+        console.error('fetchCharacterInfo', e);
+        return null;
+      }
+    }
+
     function buildRoleOptions(arr, includeEmpty) {
       const empty = includeEmpty ? '<option value="">—</option>' : '';
       return empty + arr.map(r => `<option>${r}</option>`).join('');
@@ -337,6 +386,11 @@
         return alert("Этот класс не может выполнять выбранную роль.");
       }
 
+      const charInfo = await fetchCharacterInfo(name, server);
+      if (!charInfo) {
+        return alert("Персонаж не найден или найдено несколько результатов.");
+      }
+
       const payload = {
         name,
         className,
@@ -344,7 +398,12 @@
         role2,
         role3,
         server,
-        raidId: id
+        raidId: id,
+        gearScore: charInfo.gearScore,
+        runes: charInfo.runes,
+        faction: charInfo.faction,
+        guild: charInfo.guild,
+        race: charInfo.race
       };
 
       await fetch(scriptURL, {
