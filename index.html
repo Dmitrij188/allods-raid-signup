@@ -480,8 +480,21 @@
     }
 
     async function loadRoster() {
-      const res = await fetch(scriptURL);
-      const data = await res.json();
+      let data;
+      try {
+        const res = await fetch(scriptURL);
+        if (!res.ok) {
+          console.error('loadRoster', res.status, res.statusText);
+          alert('Не удалось загрузить список рейда.');
+          return;
+        }
+        data = await res.json();
+      } catch (e) {
+        console.error('loadRoster', e);
+        alert('Не удалось загрузить список рейда.');
+        return;
+      }
+
       const grouped = {};
       data.forEach(row => {
         if (row.length > 10) {
