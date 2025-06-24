@@ -291,24 +291,28 @@
     }
 
     function roleOption(role, label) {
-      const icon = roleIcons[role] ? `<img src="${roleIcons[role]}" class="role-icon">` : "";
+      const icon = roleIcons[role]
+        ? `<img src="${roleIcons[role]}" alt="${role}" class="role-icon">`
+        : "";
       return `<span class='role-label'>${icon}${label}</span>`;
     }
 
     function renderRoster(raid) {
       if (!raid.roster.length) return '<p>Пока никто не записался.</p>';
-        const rows = raid.roster.map(p => {
-        const icon = classIcons[p.className] ? `<img class='class-icon' src="${classIcons[p.className]}" alt="${p.className}">` : '';
-        const roleIcon = roleIcons[p.role] ? `<img class='class-icon' src="${roleIcons[p.role]}" alt="${p.role}">` : '';
-        const role2Icon = roleIcons[p.role2] ? `<img class='class-icon' src="${roleIcons[p.role2]}" alt="${p.role2}">` : '';
-        const role3Icon = roleIcons[p.role3] ? `<img class='class-icon' src="${roleIcons[p.role3]}" alt="${p.role3}">` : '';
+      const rows = raid.roster.map(p => {
+        const icon = classIcons[p.className]
+          ? `<img class='class-icon' src="${classIcons[p.className]}" alt="${p.className}">`
+          : '';
+        const primary = roleOption(p.role, p.role);
+        const secondary = p.role2 ? roleOption(p.role2, p.role2) : '-';
+        const tertiary = p.role3 ? roleOption(p.role3, p.role3) : '-';
         return `
           <tr>
             <td>${icon}${p.name}</td>
             <td>${p.className}</td>
-            <td class='primary-role'>${roleIcon}${p.role}</td>
-            <td>${p.role2 ? `${role2Icon}${p.role2}` : '-'}</td>
-            <td>${p.role3 ? `${role3Icon}${p.role3}` : '-'}</td>
+            <td class='primary-role'>${primary}</td>
+            <td>${secondary}</td>
+            <td>${tertiary}</td>
             <td>${p.level ?? '-'}</td>
             <td>${p.gearScore ?? '-'}</td>
             <td>${p.guild || '-'}</td>
