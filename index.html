@@ -152,6 +152,13 @@
 
     const classes = ["Жрец", "Воин", "Паладин", "Лучник", "Мистик", "Друид", "Демонолог", "Инженер", "Некромант", "Маг", "Бард"];
     const roles = ["ДД", "Хил", "Сап", "Танк"];
+    const servers = [
+      { id: 1, name: "Нить судьбы" },
+      { id: 2, name: "Молодая Гвардия" },
+      { id: 3, name: "Сервер 3" },
+      { id: 4, name: "Сервер 4" },
+      { id: 5, name: "Сервер 5" }
+    ];
 
     const classIcons = {
       "Жрец": "jrec.png",
@@ -284,6 +291,11 @@
                 ${roles.map(r => `<option>${r}</option>`).join('')}
               </select>
             </label>
+            <label>Сервер:
+              <select id="server-${raid.id}">
+                ${servers.map(s => `<option value="${s.id}">${s.name} (${s.id})</option>`).join('')}
+              </select>
+            </label>
             <button class="btn" onclick="joinRaid(${raid.id})">Записаться</button>
           </div>
           <div class="raid-roster" id="roster-${raid.id}">
@@ -302,6 +314,7 @@
       const role = document.getElementById(`role-${id}`).value;
       const role2 = document.getElementById(`role2-${id}`).value;
       const role3 = document.getElementById(`role3-${id}`).value;
+      const server = document.getElementById(`server-${id}`).value;
 
       if (!/^[А-Яа-яЁё]{3,16}$/.test(name)) {
         return alert("Имя должно содержать от 3 до 16 символов, кириллицей, без пробелов.");
@@ -325,7 +338,13 @@
       }
 
       const payload = {
-        name, className, role, role2, role3, raidId: id
+        name,
+        className,
+        role,
+        role2,
+        role3,
+        server,
+        raidId: id
       };
 
       await fetch(scriptURL, {
