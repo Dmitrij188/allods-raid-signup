@@ -454,6 +454,13 @@
         });
 
         console.log('Signup status:', res.status, res.statusText);
+        if (!res.ok) {
+          const text = await res.text();
+          console.error('Save failed', res.status, text);
+          alert('Не удалось сохранить данные в Google Sheets.');
+          return;
+        }
+
         const text = await res.text();
         console.log('Signup response text:', text);
         if (text.trim() !== 'OK') {
