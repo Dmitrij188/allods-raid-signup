@@ -1,24 +1,15 @@
 const SHEET_NAME = 'Лист1';
 
-function withCors(output) {
-  return output
-    .setHeader('Access-Control-Allow-Origin', '*')
-    .setHeader('Access-Control-Allow-Methods', 'GET,POST,OPTIONS')
-    .setHeader('Access-Control-Allow-Headers', 'Content-Type');
-}
-
 function doGet() {
   try {
     const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEET_NAME);
     const rows = sheet.getDataRange().getValues();
-    rows.shift();
-    const out = ContentService.createTextOutput(JSON.stringify(rows))
+    rows.shift(); // убираем заголовки
+    return ContentService.createTextOutput(JSON.stringify(rows))
       .setMimeType(ContentService.MimeType.JSON);
-    return withCors(out);
   } catch (err) {
-    const errorOut = ContentService.createTextOutput('ERROR')
+    return ContentService.createTextOutput('ERROR')
       .setMimeType(ContentService.MimeType.TEXT);
-    return withCors(errorOut);
   }
 }
 
@@ -26,6 +17,7 @@ function doPost(e) {
   try {
     const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEET_NAME);
     const data = JSON.parse(e.postData.contents);
+
     const row = [
       data.name,
       data.className,
@@ -40,24 +32,27 @@ function doPost(e) {
       data.server || ''
     ];
 
-    if (sheet.getMaxColumns() < row.length) {
-      sheet.insertColumnsAfter(sheet.getMaxColumns(), row.length - sheet.getMaxColumns());
+    // Гарантируем нужное количество столбцов
+    const neededCols = row.length;
+    const currentCols = sheet.getMaxColumns();
+    if (currentCols < neededCols) {
+      sheet.insertColumnsAfter(currentCols, neededCols - currentCols);
     }
 
-    const targetRow = sheet.getLastRow() + 1;
-    sheet.getRange(targetRow, 1, 1, row.length).setValues([row]);
+    sheet.appendRow(row);
 
-    const out = ContentService.createTextOutput('OK')
+    return ContentService.createTextOutput('OK')
       .setMimeType(ContentService.MimeType.TEXT);
-    return withCors(out);
   } catch (err) {
-    const errorOut = ContentService.createTextOutput('ERROR')
+    return ContentService.createTextOutput('ERROR')
       .setMimeType(ContentService.MimeType.TEXT);
-    return withCors(errorOut);
   }
 }
 
 function doOptions() {
-  const out = ContentService.createTextOutput('');
-  return withCors(out);
+  return ContentService.createTextOutput('')
+    .setMimeType(ContentService.MimeType.TEXT)
+    .setHeader('Access-Control-Allow-Origin', '*')
+    .setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
+    .setHeader('Access-Control-Allow-Headers', 'Content-Type');
 }
