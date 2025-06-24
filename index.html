@@ -197,17 +197,29 @@
 
     async function fetchCharacterInfo(name, serverId) {
       try {
-        const searchRes = await fetch('/api/v1/armory/avatars', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ filter: { name, server: serverId } })
-        });
+        let searchRes;
+        try {
+          searchRes = await fetch('/api/v1/armory/avatars', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ filter: { name, server: serverId } })
+          });
+        } catch (e) {
+          console.error('search api', e);
+          throw new Error('network');
+        }
         const list = await searchRes.json();
         if (!Array.isArray(list) || list.length !== 1) {
-          return null;
+          return { error: 'not_found' };
         }
         const charId = list[0].id;
-        const charRes = await fetch(`/api/v1/armory/avatars/${charId}`);
+        let charRes;
+        try {
+          charRes = await fetch(`/api/v1/armory/avatars/${charId}`);
+        } catch (e) {
+          console.error('character api', e);
+          throw new Error('network');
+        }
         const data = await charRes.json();
 
         const runes = {};
@@ -240,7 +252,7 @@
         };
       } catch (e) {
         console.error('fetchCharacterInfo', e);
-        return null;
+        return { error: 'network' };
       }
     }
 
@@ -398,8 +410,11 @@
       }
 
       const charInfo = await fetchCharacterInfo(name, server);
-      if (!charInfo) {
-        return alert("Персонаж не найден или найдено несколько результатов.");
+      if (!charInfo || charInfo.error) {
+        const msg = charInfo && charInfo.error === 'network'
+          ? 'Ошибка связи с сервером. Попробуйте позже.'
+          : 'Персонаж не найден или найдено несколько результатов.';
+        return alert(msg);
       }
 
       const payload = {
