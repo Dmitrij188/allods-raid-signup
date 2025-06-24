@@ -244,6 +244,7 @@
         }
 
         return {
+          level: data.level,
           gearScore: data.gear_score,
           runes,
           faction: data.faction,
@@ -425,6 +426,7 @@
         role3,
         server,
         raidId: id,
+        level: charInfo.level,
         gearScore: charInfo.gearScore,
         runes: JSON.stringify(charInfo.runes),
         faction: charInfo.faction,
@@ -445,15 +447,21 @@
       const data = await res.json();
       const grouped = {};
       data.forEach(row => {
-        const [name, className, role, role2, role3, raidId, gearScore, runes, faction, guild, race] = row;
-        let parsedRunes;
-        try {
-          parsedRunes = JSON.parse(runes);
-        } catch (e) {
-          parsedRunes = runes;
+        if (row.length > 10) {
+          const [name, className, role, role2, role3, raidId, gearScore, runes, faction, guild, race] = row;
+          let parsedRunes;
+          try {
+            parsedRunes = JSON.parse(runes);
+          } catch (e) {
+            parsedRunes = runes;
+          }
+          if (!grouped[raidId]) grouped[raidId] = [];
+          grouped[raidId].push({ name, className, role, role2, role3, gearScore, runes: parsedRunes, faction, guild, race });
+        } else {
+          const [name, className, role, role2, role3, raidId, level, gearScore, guild, faction] = row;
+          if (!grouped[raidId]) grouped[raidId] = [];
+          grouped[raidId].push({ name, className, role, role2, role3, level, gearScore, guild, faction });
         }
-        if (!grouped[raidId]) grouped[raidId] = [];
-        grouped[raidId].push({ name, className, role, role2, role3, gearScore, runes: parsedRunes, faction, guild, race });
       });
 
       raids = Object.keys(grouped).map(id => ({ id, roster: grouped[id] }));
