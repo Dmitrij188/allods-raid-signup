@@ -294,7 +294,6 @@
         const roleIcon = roleIcons[p.role] ? `<img class='class-icon' src="${roleIcons[p.role]}" alt="${p.role}">` : '';
         const role2Icon = roleIcons[p.role2] ? `<img class='class-icon' src="${roleIcons[p.role2]}" alt="${p.role2}">` : '';
         const role3Icon = roleIcons[p.role3] ? `<img class='class-icon' src="${roleIcons[p.role3]}" alt="${p.role3}">` : '';
-        const runes = typeof p.runes === 'string' ? p.runes : JSON.stringify(p.runes);
         return `
           <tr>
             <td>${icon}${p.name}</td>
@@ -302,11 +301,10 @@
             <td class='primary-role'>${roleIcon}${p.role}</td>
             <td>${p.role2 ? `${role2Icon}${p.role2}` : '-'}</td>
             <td>${p.role3 ? `${role3Icon}${p.role3}` : '-'}</td>
+            <td>${p.level ?? '-'}</td>
             <td>${p.gearScore ?? '-'}</td>
-            <td>${runes || '-'}</td>
-            <td>${p.faction || '-'}</td>
             <td>${p.guild || '-'}</td>
-            <td>${p.race || '-'}</td>
+            <td>${p.faction || '-'}</td>
           </tr>`;
       }).join('');
 
@@ -319,11 +317,10 @@
               <th class='primary-role'>Осн. роль</th>
               <th>Доп. роль</th>
               <th>Крайний случай</th>
+              <th>Уровень</th>
               <th>GearScore</th>
-              <th>Runes</th>
-              <th>Faction</th>
-              <th>Guild</th>
-              <th>Race</th>
+              <th>Гильдия</th>
+              <th>Фракция</th>
             </tr>
           </thead>
           <tbody>
