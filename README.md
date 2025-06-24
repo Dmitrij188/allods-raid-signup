@@ -11,6 +11,11 @@ This repository contains a static site for organizing raid signups in the game *
 5. Under **Who has access**, select **Anyone** (or **Anyone, even anonymous**).
 6. Deploy and authorize if prompted, then copy the **Web app URL** that is shown.
 
+Before calling `appendRow` in your script, verify that the sheet has enough
+columns for every value. Use `sheet.getMaxColumns()` and insert columns if the
+count is lower than the payload length using `sheet.insertColumnsAfter`. When
+the sheet is too narrow, `appendRow` quietly drops the later fields of the row.
+
 ## Updating `index.html`
 
 1. Open [`index.html`](index.html) and locate the line containing `scriptURL`.
