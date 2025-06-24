@@ -8,35 +8,49 @@ function withCors(output) {
 }
 
 function doGet() {
-  const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEET_NAME);
-  const rows = sheet.getDataRange().getValues();
-  rows.shift();
-  const out = ContentService.createTextOutput(JSON.stringify(rows))
-    .setMimeType(ContentService.MimeType.JSON);
-  return withCors(out);
+  try {
+    const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEET_NAME);
+    const rows = sheet.getDataRange().getValues();
+    rows.shift();
+    const out = ContentService.createTextOutput(JSON.stringify(rows))
+      .setMimeType(ContentService.MimeType.JSON);
+    return withCors(out);
+  } catch (err) {
+    const errorOut = ContentService.createTextOutput('ERROR')
+      .setMimeType(ContentService.MimeType.TEXT);
+    return withCors(errorOut);
+  }
 }
 
+
 function doPost(e) {
-  const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEET_NAME);
-  const data = JSON.parse(e.postData.contents);
-  const row = [
-    data.name,
-    data.className,
-    data.role,
-    data.role2,
-    data.role3,
-    data.raidId,
-    data.level || '',
-    data.gearScore || '',
-    data.guild || '',
-    data.faction || '',
-    data.server || ''
-  ];
-  sheet.appendRow(row);
-  const out = ContentService.createTextOutput('OK')
-    .setMimeType(ContentService.MimeType.TEXT);
-  return withCors(out);
+  try {
+    const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEET_NAME);
+    const data = JSON.parse(e.postData.contents);
+    const row = [
+      data.name,
+      data.className,
+      data.role,
+      data.role2,
+      data.role3,
+      data.raidId,
+      data.level || '',
+      data.gearScore || '',
+      data.guild || '',
+      data.faction || '',
+      data.server || ''
+    ];
+    sheet.appendRow(row);
+    const out = ContentService.createTextOutput('OK')
+      .setMimeType(ContentService.MimeType.TEXT);
+    return withCors(out);
+  } catch (err) {
+    const errorOut = ContentService.createTextOutput('ERROR')
+      .setMimeType(ContentService.MimeType.TEXT);
+    return withCors(errorOut);
+  }
 }
+
 
 function doOptions() {
   const out = ContentService.createTextOutput('');
