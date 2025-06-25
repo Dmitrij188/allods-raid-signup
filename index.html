@@ -88,10 +88,14 @@
       background-color: #007bff;
       margin-top: 10px;
     }
-    .music-toggle {
+    .music-controls {
       position: fixed;
       top: 20px;
       right: 20px;
+      display: flex;
+      gap: 6px;
+    }
+    .music-toggle {
       background-color: #6f42c1;
       padding: 10px 15px;
       border: none;
@@ -108,7 +112,11 @@
 </head>
 <body>
   <h1>Рейды Аллоды Онлайн</h1>
-  <button class="music-toggle" onclick="toggleMusic()" id="musicBtn">Выключить музыку</button>
+  <div class="music-controls">
+    <button class="music-toggle" onclick="prevTrack()" id="prevBtn">&#9664;</button>
+    <button class="music-toggle" onclick="toggleMusic()" id="musicBtn">Выключить музыку</button>
+    <button class="music-toggle" onclick="nextTrack()" id="nextBtn">&#9654;</button>
+  </div>
 
   <div id="raids"></div>
   <button class="btn btn-admin" onclick="createRaid()">+ Создать новый рейд</button>
@@ -144,6 +152,24 @@
         musicTracks.forEach(track => track.pause());
         musicBtn.textContent = "Включить музыку";
       }
+    }
+
+    function changeTrack(step) {
+      const wasPaused = musicTracks[currentTrack].paused;
+      musicTracks[currentTrack].pause();
+      musicTracks[currentTrack].currentTime = 0;
+      currentTrack = (currentTrack + step + musicTracks.length) % musicTracks.length;
+      if (!wasPaused) {
+        musicTracks[currentTrack].play();
+      }
+    }
+
+    function nextTrack() {
+      changeTrack(1);
+    }
+
+    function prevTrack() {
+      changeTrack(-1);
     }
 
     const MAX_RAIDS = 4;
