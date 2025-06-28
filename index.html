@@ -53,6 +53,8 @@
     }
     .raid-roster {
       margin-top: 20px;
+      overflow-x: auto;
+      max-width: 100%;
     }
     .roster-table {
       width: auto;
@@ -107,6 +109,22 @@
       height: 24px;
       vertical-align: middle;
       margin-right: 6px;
+    }
+    .footer {
+      margin-top: 40px;
+      text-align: center;
+    }
+    .developer-link {
+      display: inline-block;
+      background-image: url('Кнопка Сс.png');
+      background-size: contain;
+      background-repeat: no-repeat;
+      background-position: center;
+      color: #fff;
+      text-decoration: none;
+      font-weight: bold;
+      font-size: 14px;
+      padding: 10px 20px;
     }
   </style>
 </head>
@@ -576,7 +594,10 @@
       renderRaids();
     }
 
-    loadRoster();
+  loadRoster();
   </script>
+  <div class="footer">
+    <a href="https://t.me/LDV007" target="_blank" class="developer-link">Разработчик</a>
+  </div>
 </body>
 </html>
