@@ -125,6 +125,18 @@
       font-weight: bold;
       padding: 10px 20px;
     }
+    body,html{margin:0;padding:0;height:100%;font-family:'Allods West',Arial,sans-serif;color:#fff;overflow:hidden}
+    #bgVideo{position:fixed;top:0;left:0;width:100%;height:100%;object-fit:cover;filter:blur(4px);z-index:-1}
+    .step{display:none;text-align:center;margin-top:40px}
+    .servers img,.dungeons img,.factions img{width:150px;height:150px;cursor:pointer;margin:10px;border-radius:8px;border:2px solid transparent;}
+    .servers div,.dungeons div,.factions div{display:inline-block;text-align:center}
+    .progress{position:fixed;top:10px;left:50%;transform:translateX(-50%);display:flex;gap:10px;z-index:10}
+    .progress div{width:20px;height:20px;border-radius:50%;background:#777}
+    .progress .active{background:#28a745}
+    #squads{padding:20px;overflow-y:auto;height:100%;background:rgba(0,0,0,0.6)}
+    .squad{background:#222;margin:10px;padding:10px;border-radius:6px}
+    .squad.open .type{color:lime}
+    .squad.closed .type{color:yellow}
   </style>
 </head>
 <body>
@@ -135,8 +147,44 @@
     <button class="music-toggle" onclick="nextTrack()" id="nextBtn">&#9654;</button>
   </div>
 
-  <div id="raids"></div>
-  <button class="btn btn-admin" onclick="createRaid()">+ Создать новый рейд</button>
+  <video id="bgVideo" autoplay muted loop><source src="cutao.mp4" type="video/mp4"></video>
+  <div class="progress">
+    <div id="p1" class="active"></div>
+    <div id="p2"></div>
+    <div id="p3"></div>
+    <div id="p4"></div>
+  </div>
+  <div id="step1" class="step" style="display:block">
+    <h2>Выберите сервер</h2>
+    <div class="servers">
+      <div data-id="1"><img src="battles_icon.png"><br>Нить судьбы</div>
+      <div data-id="2"><img src="battles_icon.png"><br>Молодая Гвардия</div>
+      <div data-id="3"><img src="battles_icon.png"><br>Наследие Богов</div>
+      <div data-id="4"><img src="battles_icon.png"><br>Вечный Зов</div>
+      <div data-id="5"><img src="battles_icon.png"><br>Звезда Удачи</div>
+    </div>
+  </div>
+  <div id="step2" class="step">
+    <h2>Выберите данж</h2>
+    <div class="dungeons">
+      <div data-id="nihaza"><img src="Iranoh_Kania_Female_5.png"><br>Цитадель Нихаза</div>
+      <div data-id="sadrok"><img src="W_lvp6A8wTpf-f0zLFy4uQ(1).png"><br>Дворец Садрок</div>
+      <div data-id="obs"><img src="obs_4.png"><br>Обсерватория</div>
+    </div>
+  </div>
+  <div id="step3" class="step">
+    <h2>Выберите фракцию</h2>
+    <div class="factions">
+      <div data-id="league"><img src="liga.png"><br>Лига</div>
+      <div data-id="empire"><img src="imperia.png"><br>Империя</div>
+    </div>
+  </div>
+  <div id="step4" class="step">
+    <h2>Отряды</h2>
+    <div id="squads"></div>
+    <div id="raids"></div>
+    <button class="btn btn-admin" onclick="createRaid()">+ Создать новый рейд</button>
+  </div>
 
   <script>
     const scriptURL = 'https://script.google.com/macros/s/AKfycbygHKNe9Ocf_kuJc1Q8lGTuiiqs8eWhkldWnpp_olnKqL2W_XDKAgtjEIaAOrMvaNSD/exec';
@@ -594,6 +642,53 @@
     }
 
   loadRoster();
+
+  const progress = [document.getElementById('p1'), document.getElementById('p2'), document.getElementById('p3'), document.getElementById('p4')];
+  let sel = { server: null, dungeon: null, faction: null };
+  function showStep(n) {
+    ['step1','step2','step3','step4'].forEach((id,i) => {
+      document.getElementById(id).style.display = i === n-1 ? 'block' : 'none';
+      progress[i].classList.toggle('active', i <= n-1);
+    });
+  }
+  function onSelect(step, id) {
+    if (step === 1) {
+      sel.server = id;
+      showStep(2);
+    } else if (step === 2) {
+      sel.dungeon = id;
+      showStep(3);
+    } else if (step === 3) {
+      sel.faction = id;
+      document.getElementById('bgVideo').style.display = 'none';
+      loadSquads();
+      showStep(4);
+    }
+  }
+  document.querySelectorAll('.servers div').forEach(el => el.onclick = () => onSelect(1, el.dataset.id));
+  document.querySelectorAll('.dungeons div').forEach(el => el.onclick = () => onSelect(2, el.dataset.id));
+  document.querySelectorAll('.factions div').forEach(el => el.onclick = () => onSelect(3, el.dataset.id));
+  function loadSquads() {
+    document.getElementById('squads').innerHTML = '<p>Загрузка отрядов...</p>';
+    fetch(scriptURL, { mode: 'cors' })
+      .then(r => r.json())
+      .then(data => {
+        const list = data.filter(row => row[10] == sel.server && row[9] == (sel.faction == 'league' ? 'Лига' : 'Империя'));
+        const squadsById = {};
+        list.forEach(row => {
+          const id = row[5];
+          if (!squadsById[id]) squadsById[id] = { id, type: id.length > 2 ? 'closed' : 'open', players: [] };
+          squadsById[id].players.push({ name: row[0], class: row[1] });
+        });
+        const html = Object.values(squadsById)
+          .map(s => `<div class="squad ${s.type}"><div class="type">${s.type=='open'?'Открытый':'Закрытый'}</div><div>Игроки: ${s.players.map(p=>p.name).join(', ')}</div><button>Вступить</button></div>`)
+          .join('');
+        document.getElementById('squads').innerHTML = html || '<p>Нет отрядов</p>';
+      })
+      .catch(() => {
+        document.getElementById('squads').innerHTML = '<p>Ошибка загрузки</p>';
+      });
+  }
   </script>
   <div class="footer">
     <a href="https://t.me/LDV007" target="_blank" class="developer-link">Разработчик</a>
