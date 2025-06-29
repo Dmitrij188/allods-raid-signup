@@ -236,8 +236,10 @@ function renderRaids() {
   raids.forEach((raid, index) => {
     const raidEl = document.createElement("div");
     raidEl.className = "raid-container";
+    raidEl.dataset.id = raid.id;
+    const typeLabel = String(raid.id).length > 2 ? 'Закрытый' : 'Открытый';
     raidEl.innerHTML = `
-      <h2>Рейд ${+raid.id + 1}</h2>
+      <h2>Отряд ${raid.id} (${typeLabel})</h2>
       <div class="form-section">
         <label>Имя: <input type="text" id="name-${raid.id}" maxlength="16" minlength="3" pattern="[А-Яа-яЁё]{3,16}"></label>
         <label>Класс:
@@ -439,16 +441,24 @@ async function loadRoster() {
 
 function createRaid() {
   if (raids.length >= MAX_RAIDS) return alert("Максимум 4 рейда");
+  const closed = confirm('Создать закрытый отряд?');
+  let raidId;
+  if (closed) {
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$';
+    raidId = '';
+    for (let i=0;i<8;i++) raidId += chars[Math.floor(Math.random()*chars.length)];
+    alert('Код закрытого отряда: ' + raidId);
+  } else {
+    // Determine the next available raid id based on the current maximum.
+    const maxId = raids.reduce((m, r) => {
+      const idNum = parseInt(r.id, 10);
+      return isNaN(idNum) ? m : Math.max(m, idNum);
+    }, -1);
+    raidId = maxId + 1;
 
-  // Determine the next available raid id based on the current maximum.
-  const maxId = raids.reduce((m, r) => {
-    const idNum = parseInt(r.id, 10);
-    return isNaN(idNum) ? m : Math.max(m, idNum);
-  }, -1);
-  const raidId = maxId + 1;
-
-  // Avoid id clashes if non-sequential ids are loaded from the server.
-  if (raids.some(r => String(r.id) === String(raidId))) return alert("Ошибка создания рейда");
+    // Avoid id clashes if non-sequential ids are loaded from the server.
+    if (raids.some(r => String(r.id) === String(raidId))) return alert('Ошибка создания рейда');
+  }
 
   const raid = {
     id: raidId,
@@ -498,12 +508,47 @@ function loadSquads() {
         squadsById[id].players.push({ name: row[0], class: row[1] });
       });
       const html = Object.values(squadsById)
-        .map(s => `<div class="squad ${s.type}"><div class="type">${s.type=='open'?'Открытый':'Закрытый'}</div><div>Игроки: ${s.players.map(p=>p.name).join(', ')}</div><button>Вступить</button></div>`)
+        .map(s => `<div class="squad ${s.type}"><div class="type">${s.type=='open'?'Открытый':'Закрытый'}</div><div>Игроки: ${s.players.map(p=>p.name).join(', ')}</div><button onclick="enterSquad('${s.id}','${s.type}')">Вступить</button></div>`)
         .join('');
       document.getElementById('squads').innerHTML = html || '<p>Нет отрядов</p>';
     })
     .catch(() => {
       document.getElementById('squads').innerHTML = '<p>Ошибка загрузки</p>';
     });
+}
+
+function enterSquad(id, type) {
+  if (type === 'closed') {
+    const code = prompt('Введите код для вступления');
+    if (!code || code !== id) return alert('Неверный код');
+  }
+  // Показать список рейдов и прокрутить к нужному
+  loadRoster().then(() => {
+    showStep(4);
+    const el = document.querySelector(`#raids .raid-container[data-id='${id}']`);
+    if (el) el.scrollIntoView({ behavior: 'smooth' });
+  });
+}
+
+function joinByCode() {
+  const code = prompt('Введите код отряда');
+  if (!code) return;
+  fetch(scriptURL, { mode: 'cors' })
+    .then(r => r.json())
+    .then(data => {
+      const row = data.find(r => r[5] === code);
+      if (!row) {
+        alert('Отряд не найден');
+        return;
+      }
+      sel.server = row[10];
+      sel.faction = row[9] === 'Лига' ? 'league' : 'empire';
+      showStep(4);
+      loadRoster().then(() => {
+        const el = document.querySelector(`#raids .raid-container[data-id='${code}']`);
+        if (el) el.scrollIntoView({ behavior: 'smooth' });
+      });
+    })
+    .catch(() => alert('Ошибка поиска отряда'));
 }
 
