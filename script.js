@@ -1,4 +1,4 @@
-const scriptURL = 'https://script.google.com/macros/s/AKfycbygHKNe9Ocf_kuJc1Q8lGTuiiqs8eWhkldWnpp_olnKqL2W_XDKAgtjEIaAOrMvaNSD/exec';
+const scriptURL = 'https://script.google.com/macros/s/AKfycbwnlzIC0wGflvcK--3BQ_kSY6c9fEGPMQfMTBk0UfeNcAFgx7Vb990Ofn_Rua1ekdOv/exec';
 
 const musicBtn = document.getElementById("musicBtn");
 const musicTracks = [
