@@ -1,0 +1,154 @@
+@font-face {
+  font-family: 'Allods West';
+  src: url('allods_west.ttf') format('truetype');
+}
+
+body {
+  background-image: url("1931c04e9200fc1f4ef619ec953247d86ddcb0fe.jpg");
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+  background-repeat: no-repeat;
+  color: #fff;
+  font-family: 'Allods West', Arial, sans-serif;
+  padding: 20px;
+  cursor: url('kursor.png'), auto;
+}
+
+h1, h2 {
+  color: #ffc107;
+}
+
+.raid-container {
+  margin-bottom: 40px;
+  padding: 20px;
+  background-color: rgba(46, 46, 78, 0.85);
+  border-radius: 10px;
+}
+
+.form-section {
+  margin-bottom: 20px;
+}
+
+label, select, input {
+  display: block;
+  margin: 8px 0;
+  max-width: 300px;
+}
+
+.role-label {
+  font-weight: bold;
+  background-color: rgba(255, 255, 255, 0.1);
+  padding: 4px;
+  border-radius: 4px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  width: fit-content;
+}
+
+.role-icon {
+  width: 20px;
+  height: 20px;
+}
+
+.raid-roster {
+  margin-top: 20px;
+  overflow-x: auto;
+  max-width: 100%;
+}
+
+.roster-table {
+  width: auto;
+  border-collapse: collapse;
+  margin-top: 10px;
+}
+
+.roster-table th,
+.roster-table td {
+  padding: 4px 8px;
+  border-bottom: 1px solid #555;
+  text-align: left;
+  width: 150px;
+  white-space: nowrap;
+}
+
+.roster-table th {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.roster-table tbody tr:nth-child(even) {
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
+.roster-table .primary-role {
+  background-color: rgba(255, 255, 255, 0.1);
+  font-weight: bold;
+}
+
+.btn {
+  padding: 10px 20px;
+  background-color: #28a745;
+  color: white;
+  border: none;
+  border-radius: 5px;
+}
+
+.btn-admin {
+  background-color: #007bff;
+  margin-top: 10px;
+}
+
+.music-controls {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  display: flex;
+  gap: 6px;
+}
+
+.music-toggle {
+  background-color: #6f42c1;
+  padding: 10px 15px;
+  border: none;
+  border-radius: 6px;
+  color: white;
+}
+
+.class-icon {
+  width: 24px;
+  height: 24px;
+  vertical-align: middle;
+  margin-right: 6px;
+}
+
+.footer {
+  margin-top: 40px;
+  text-align: center;
+}
+
+.developer-link {
+  display: inline-block;
+  background-image: url('Кнопка Сс.png');
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  color: #fff;
+  text-decoration: none;
+  font-weight: bold;
+  padding: 10px 20px;
+}
+
+body,html{margin:0;padding:0;height:100%;font-family:'Allods West',Arial,sans-serif;color:#fff;overflow:hidden}
+#bgVideo{position:fixed;top:0;left:0;width:100%;height:100%;object-fit:cover;filter:blur(4px);z-index:-1}
+.step{display:none;text-align:center;margin-top:40px}
+.servers img,.dungeons img,.factions img{width:150px;height:150px;cursor:pointer;margin:10px;border-radius:8px;border:2px solid transparent;}
+.servers div,.dungeons div,.factions div{display:inline-block;text-align:center}
+.progress{position:fixed;top:10px;left:50%;transform:translateX(-50%);display:flex;gap:10px;z-index:10}
+.progress div{width:20px;height:20px;border-radius:50%;background:#777}
+.progress .active{background:#28a745}
+#squads{padding:20px;overflow-y:auto;height:100%;background:rgba(0,0,0,0.6)}
+.squad{background:#222;margin:10px;padding:10px;border-radius:6px}
+.squad.open .type{color:lime}
+.squad.closed .type{color:yellow}
+
