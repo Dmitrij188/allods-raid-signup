@@ -151,4 +151,16 @@ body,html{margin:0;padding:0;height:100%;font-family:'Allods West',Arial,sans-se
 .squad{background:#222;margin:10px;padding:10px;border-radius:6px}
 .squad.open .type{color:lime}
 .squad.closed .type{color:yellow}
+.join-code-btn{
+  position:fixed;
+  bottom:20px;
+  right:20px;
+  z-index:11;
+  padding:10px 20px;
+  background:#ffc107;
+  color:#000;
+  border:none;
+  border-radius:6px;
+  cursor:pointer;
+}
 

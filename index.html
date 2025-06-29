@@ -6,7 +6,7 @@
   <link rel="stylesheet" href="style.css">
   </head>
 <body>
-  <h1>Рейды Аллоды Онлайн</h1>
+  <h1 id="homeTitle">Рейды Аллоды Онлайн</h1>
   <div class="music-controls">
     <button class="music-toggle" onclick="prevTrack()" id="prevBtn">&#9664;</button>
     <button class="music-toggle" onclick="toggleMusic()" id="musicBtn">Выключить музыку</button>
@@ -20,6 +20,7 @@
     <div id="p3"></div>
     <div id="p4"></div>
   </div>
+  <button id="joinCodeBtn" class="join-code-btn" onclick="joinByCode()">Присоединиться по коду</button>
   <div id="step1" class="step" style="display:block">
     <h2>Выберите сервер</h2>
     <div class="servers">
