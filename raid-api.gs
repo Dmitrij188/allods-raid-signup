@@ -1,15 +1,26 @@
 const SHEET_NAME = 'Лист1';
 
+function addCors(output) {
+  return output
+    .setHeader('Access-Control-Allow-Origin', '*')
+    .setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
+    .setHeader('Access-Control-Allow-Headers', 'Content-Type');
+}
+
 function doGet() {
   try {
     const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEET_NAME);
     const rows = sheet.getDataRange().getValues();
     rows.shift(); // убираем заголовки
-    return ContentService.createTextOutput(JSON.stringify(rows))
-      .setMimeType(ContentService.MimeType.JSON);
+    return addCors(
+      ContentService.createTextOutput(JSON.stringify(rows))
+        .setMimeType(ContentService.MimeType.JSON)
+    );
   } catch (err) {
-    return ContentService.createTextOutput('ERROR')
-      .setMimeType(ContentService.MimeType.TEXT);
+    return addCors(
+      ContentService.createTextOutput('ERROR')
+        .setMimeType(ContentService.MimeType.TEXT)
+    );
   }
 }
 
@@ -40,12 +51,15 @@ function doPost(e) {
     }
 
     sheet.appendRow(row);
-
-    return ContentService.createTextOutput('OK')
-      .setMimeType(ContentService.MimeType.TEXT);
+    return addCors(
+      ContentService.createTextOutput('OK')
+        .setMimeType(ContentService.MimeType.TEXT)
+    );
   } catch (err) {
-    return ContentService.createTextOutput('ERROR')
-      .setMimeType(ContentService.MimeType.TEXT);
+    return addCors(
+      ContentService.createTextOutput('ERROR')
+        .setMimeType(ContentService.MimeType.TEXT)
+    );
   }
 }
 
