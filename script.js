@@ -307,7 +307,7 @@ async function joinRaid(id) {
     return alert('Выберите сервер.');
   }
 
-  const currentRaid = raids.find(r => +r.id === +id);
+  const currentRaid = raids.find(r => String(r.id) === String(id));
   if (!currentRaid) return alert("Рейд не найден!");
 
   // Disallow using the same character name across all raids
