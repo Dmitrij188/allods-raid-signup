@@ -4,7 +4,8 @@ function addCors(output) {
   return output
     .setHeader('Access-Control-Allow-Origin', '*')
     .setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
-    .setHeader('Access-Control-Allow-Headers', 'Content-Type');
+    .setHeader('Access-Control-Allow-Headers', 'Content-Type')
+    .setHeader('Vary', 'Origin');
 }
 
 function doGet() {
@@ -66,6 +67,10 @@ function doPost(e) {
   }
 }
 
+// Note: Apps Script does not route HTTP OPTIONS requests to this handler.
+// Preflight requests will therefore not reach the script. Instead of
+// relying on doOptions(), avoid custom headers in the frontend so that
+// the browser sends a "simple" request without a preflight.
 function doOptions() {
   return addCors(
     ContentService.createTextOutput('')

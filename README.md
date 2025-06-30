@@ -18,6 +18,14 @@ Edit the `scriptURL` constant at the top of **script.js** and replace the curren
 const scriptURL = 'YOUR_WEB_APP_URL_HERE';
 ```
 
+### CORS considerations
+
+Google Apps Script doesn't expose an `OPTIONS` handler, so preflight
+requests won't reach your code. Avoid sending custom request headers
+(like `Content-Type: application/json`) from the frontend so the browser
+makes a simple CORS request. The included `script.js` already omits this
+header when calling the Apps Script.
+
 ## Spreadsheet setup
 
 `raid-api.gs` expects a sheet named `Лист1` in the active spreadsheet. If your sheet has a different name, update the `SHEET_NAME` constant in **raid-api.gs** accordingly:

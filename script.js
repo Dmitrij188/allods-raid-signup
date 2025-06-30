@@ -382,10 +382,10 @@ async function joinRaid(id) {
       return;
     }
 
-    const text = await res.text();
-    console.log('Signup response text:', text);
-    if (text.trim() !== 'OK') {
-      console.error('Save failed', res.status, text);
+    const data = await res.json();
+    console.log('Signup response:', data);
+    if (!data || data.status !== 'ok') {
+      console.error('Save failed', res.status, JSON.stringify(data));
       alert('Не удалось сохранить данные в Google Sheets.');
       return;
     }
