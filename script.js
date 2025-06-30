@@ -307,7 +307,7 @@ async function joinRaid(id) {
     return alert('Выберите сервер.');
   }
 
-  const currentRaid = raids.find(r => +r.id === +id);
+  const currentRaid = raids.find(r => String(r.id) === String(id));
   if (!currentRaid) return alert("Рейд не найден!");
 
   // Disallow using the same character name across all raids
@@ -371,6 +371,7 @@ async function joinRaid(id) {
     const res = await fetch(scriptURL, {
       method: 'POST',
       mode: 'cors',
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload)
     });
 
@@ -382,10 +383,10 @@ async function joinRaid(id) {
       return;
     }
 
-    const text = await res.text();
-    console.log('Signup response text:', text);
-    if (text.trim() !== 'OK') {
-      console.error('Save failed', res.status, text);
+    const result = await res.json();
+    console.log('Signup response:', result);
+    if (result.status !== 'ok') {
+      console.error('Save failed', res.status, result);
       alert('Не удалось сохранить данные в Google Sheets.');
       return;
     }
@@ -410,7 +411,13 @@ async function loadRoster() {
       alert('Не удалось загрузить список рейда.');
       return;
     }
-    data = await res.json();
+    const json = await res.json();
+    if (json.status !== 'ok') {
+      console.error('loadRoster', json);
+      alert('Не удалось загрузить список рейда.');
+      return;
+    }
+    data = json.data;
   } catch (e) {
     console.error('loadRoster', e);
     alert('Не удалось загрузить список рейда.');
@@ -499,7 +506,9 @@ function loadSquads() {
   document.getElementById('squads').innerHTML = '<p>Загрузка отрядов...</p>';
   fetch(scriptURL, { mode: 'cors' })
     .then(r => r.json())
-    .then(data => {
+    .then(json => {
+      if (json.status !== 'ok') throw new Error('bad response');
+      const data = json.data;
       const list = data.filter(row => row[10] == sel.server && row[9] == (sel.faction == 'league' ? 'Лига' : 'Империя'));
       const squadsById = {};
       list.forEach(row => {
@@ -535,7 +544,9 @@ function joinByCode() {
   if (!code) return;
   fetch(scriptURL, { mode: 'cors' })
     .then(r => r.json())
-    .then(data => {
+    .then(json => {
+      if (json.status !== 'ok') throw new Error('bad response');
+      const data = json.data;
       const row = data.find(r => r[5] === code);
       if (!row) {
         alert('Отряд не найден');
