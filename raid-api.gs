@@ -1,12 +1,9 @@
 const SHEET_NAME = 'Лист1';
 
-function addCors(output) {
-  return output
-    .setHeader('Access-Control-Allow-Origin', '*')
-    .setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
-    .setHeader('Access-Control-Allow-Headers', 'Content-Type')
-    .setHeader('Vary', 'Origin');
-}
+// Google Apps Script's web app responses already include the
+// `Access-Control-Allow-Origin: *` header. Attempting to call
+// `setHeader()` on a TextOutput object results in a runtime error,
+// so we simply return the output object directly.
 
 function doGet() {
   try {
@@ -14,16 +11,12 @@ function doGet() {
     const rows = sheet.getDataRange().getValues();
     rows.shift(); // убираем заголовки
     const payload = { status: 'ok', data: rows };
-    return addCors(
-      ContentService.createTextOutput(JSON.stringify(payload))
-        .setMimeType(ContentService.MimeType.JSON)
-    );
+    return ContentService.createTextOutput(JSON.stringify(payload))
+      .setMimeType(ContentService.MimeType.JSON);
   } catch (err) {
     const payload = { status: 'error', message: String(err) };
-    return addCors(
-      ContentService.createTextOutput(JSON.stringify(payload))
-        .setMimeType(ContentService.MimeType.JSON)
-    );
+    return ContentService.createTextOutput(JSON.stringify(payload))
+      .setMimeType(ContentService.MimeType.JSON);
   }
 }
 
@@ -54,16 +47,12 @@ function doPost(e) {
     }
 
     sheet.appendRow(row);
-    return addCors(
-      ContentService.createTextOutput(JSON.stringify({ status: 'ok' }))
-        .setMimeType(ContentService.MimeType.JSON)
-    );
+    return ContentService.createTextOutput(JSON.stringify({ status: 'ok' }))
+      .setMimeType(ContentService.MimeType.JSON);
   } catch (err) {
     const payload = { status: 'error', message: String(err) };
-    return addCors(
-      ContentService.createTextOutput(JSON.stringify(payload))
-        .setMimeType(ContentService.MimeType.JSON)
-    );
+    return ContentService.createTextOutput(JSON.stringify(payload))
+      .setMimeType(ContentService.MimeType.JSON);
   }
 }
 
@@ -72,8 +61,8 @@ function doPost(e) {
 // relying on doOptions(), avoid custom headers in the frontend so that
 // the browser sends a "simple" request without a preflight.
 function doOptions() {
-  return addCors(
-    ContentService.createTextOutput('')
-      .setMimeType(ContentService.MimeType.TEXT)
-  );
+  // This handler will rarely be used since browsers won't
+  // send preflight requests to Apps Script Web Apps.
+  return ContentService.createTextOutput('')
+    .setMimeType(ContentService.MimeType.TEXT);
 }

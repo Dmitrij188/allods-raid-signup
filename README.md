@@ -21,10 +21,11 @@ const scriptURL = 'YOUR_WEB_APP_URL_HERE';
 ### CORS considerations
 
 Google Apps Script doesn't expose an `OPTIONS` handler, so preflight
-requests won't reach your code. Avoid sending custom request headers
-(like `Content-Type: application/json`) from the frontend so the browser
-makes a simple CORS request. The included `script.js` already omits this
-header when calling the Apps Script.
+requests won't reach your code. The platform automatically sends the
+`Access-Control-Allow-Origin` header for Web App responses. Avoid custom
+request headers (such as `Content-Type: application/json`) so the
+browser issues a *simple* CORS request. The included `script.js`
+already omits this header when calling the Apps Script.
 
 ## Spreadsheet setup
 
