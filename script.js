@@ -410,7 +410,14 @@ async function loadRoster() {
       alert('Не удалось загрузить список рейда.');
       return;
     }
-    data = await res.json();
+    const result = await res.json();
+    if (result && result.status === 'ok' && Array.isArray(result.data)) {
+      data = result.data;
+    } else {
+      console.error('loadRoster', 'bad response', result);
+      alert('Не удалось загрузить список рейда.');
+      return;
+    }
   } catch (e) {
     console.error('loadRoster', e);
     alert('Не удалось загрузить список рейда.');
