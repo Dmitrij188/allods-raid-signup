@@ -517,6 +517,7 @@ function onSelect(step, id) {
     sel.faction = id;
     document.getElementById('bgVideo').style.display = 'none';
     loadSquads();
+    loadRoster();
     showStep(4);
   }
 }
@@ -579,6 +580,7 @@ function joinByCode() {
       }
       sel.server = row[10];
       sel.faction = row[9] === 'Лига' ? 'league' : 'empire';
+      sel.dungeon = row[11];
       showStep(4);
       loadRoster().then(() => {
         const el = document.querySelector(`#raids .raid-container[data-id='${code}']`);
