@@ -172,3 +172,28 @@ body,html{
   cursor:pointer;
 }
 
+/* Layout for raid selection */
+.raid-layout {
+  display: flex;
+  gap: 20px;
+}
+
+.raid-list {
+  width: 40%;
+  max-height: 70vh;
+  overflow-y: auto;
+}
+
+.raid-detail {
+  flex: 1;
+  max-height: 70vh;
+  overflow-y: auto;
+}
+
+.raid-item {
+  background-color: rgba(46, 46, 78, 0.85);
+  padding: 10px;
+  margin-bottom: 10px;
+  border-radius: 8px;
+}
+
