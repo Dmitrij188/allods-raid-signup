@@ -57,6 +57,7 @@ GearScore
 Guild
 Faction
 Server
+Dungeon
 Ensure the sheet contains at least these columns before calling appendRow. If getMaxColumns() is lower than the payload length, insert new columns with insertColumnsAfter to avoid data loss.
 Update index.html
 

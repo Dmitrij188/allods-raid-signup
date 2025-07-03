@@ -233,7 +233,12 @@ function renderRoster(raid) {
 function renderRaids() {
   const raidsDiv = document.getElementById("raids");
   raidsDiv.innerHTML = "";
-  raids.forEach((raid, index) => {
+  const factionName = sel.faction === 'league' ? 'Лига' : 'Империя';
+  raids.filter(r =>
+    r.server == sel.server &&
+    r.dungeon == sel.dungeon &&
+    r.faction == factionName
+  ).forEach((raid, index) => {
     const raidEl = document.createElement("div");
     raidEl.className = "raid-container";
     raidEl.dataset.id = raid.id;
@@ -280,6 +285,8 @@ function renderRaids() {
     `;
     raidsDiv.appendChild(raidEl);
     updateRoleOptions(raid.id);
+    const serverSelect = document.getElementById(`server-${raid.id}`);
+    if (serverSelect) serverSelect.value = raid.server;
   });
 }
 
@@ -366,7 +373,8 @@ async function joinRaid(id) {
     gearScore: charInfo.gearScore,
     guild: charInfo.guild,
     faction: charInfo.faction,
-    server
+    server,
+    dungeon: sel.dungeon
   };
 
   try {
@@ -426,25 +434,33 @@ async function loadRoster() {
     return;
   }
 
+  const factionName = sel.faction === 'league' ? 'Лига' : 'Империя';
+  const filtered = data.filter(row =>
+    row[10] == sel.server &&
+    row[9] == factionName &&
+    row[11] == sel.dungeon
+  );
+
   const grouped = {};
-  data.forEach(row => {
-    if (row.length > 10) {
-      // row contains server information
-      const [name, className, role, role2, role3, raidId, level, gearScore, guild, faction, server] = row;
-      if (!grouped[raidId]) grouped[raidId] = [];
-      grouped[raidId].push({ name, className, role, role2, role3, level, gearScore, guild, faction, server });
-    } else if (row.length > 9) {
-      const [name, className, role, role2, role3, raidId, level, gearScore, guild, faction] = row;
-      if (!grouped[raidId]) grouped[raidId] = [];
-      grouped[raidId].push({ name, className, role, role2, role3, level, gearScore, guild, faction });
-    } else {
-      const [name, className, role, role2, raidId, level, gearScore, guild, faction] = row;
-      if (!grouped[raidId]) grouped[raidId] = [];
-      grouped[raidId].push({ name, className, role, role2, level, gearScore, guild, faction });
+  filtered.forEach(row => {
+    const [name, className, role, role2, role3, raidId,
+      level, gearScore, guild, faction, server, dungeon] = row;
+    if (!grouped[raidId]) {
+      grouped[raidId] = { server, faction, dungeon, players: [] };
     }
+    grouped[raidId].players.push({
+      name, className, role, role2, role3,
+      level, gearScore, guild, faction, server, dungeon
+    });
   });
 
-  raids = Object.keys(grouped).map(id => ({ id, roster: grouped[id] }));
+  raids = Object.keys(grouped).map(id => ({
+    id,
+    server: grouped[id].server,
+    faction: grouped[id].faction,
+    dungeon: grouped[id].dungeon,
+    roster: grouped[id].players
+  }));
   renderRaids();
 }
 
@@ -471,7 +487,10 @@ function createRaid() {
 
   const raid = {
     id: raidId,
-    roster: []
+    roster: [],
+    server: sel.server,
+    dungeon: sel.dungeon,
+    faction: sel.faction === 'league' ? 'Лига' : 'Империя'
   };
   raids.push(raid);
   renderRaids();
@@ -511,7 +530,11 @@ function loadSquads() {
     .then(result => {
       const rows = result && result.status === 'ok' ? result.data : null;
       if (!rows) throw new Error('bad response');
-      const list = rows.filter(row => row[10] == sel.server && row[9] == (sel.faction == 'league' ? 'Лига' : 'Империя'));
+      const list = rows.filter(row =>
+        row[10] == sel.server &&
+        row[9] == (sel.faction == 'league' ? 'Лига' : 'Империя') &&
+        row[11] == sel.dungeon
+      );
       const squadsById = {};
       list.forEach(row => {
         const id = row[5];
