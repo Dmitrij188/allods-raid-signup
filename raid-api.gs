@@ -36,7 +36,8 @@ function doPost(e) {
       data.gearScore || '',
       data.guild || '',
       data.faction || '',
-      data.server || ''
+      data.server || '',
+      data.dungeon || ''
     ];
 
     // Гарантируем нужное количество столбцов
