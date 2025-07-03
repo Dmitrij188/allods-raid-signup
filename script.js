@@ -271,7 +271,7 @@ function renderRaids() {
             ${servers.map(s => `<option value="${s.id}">${s.name} (${s.id})</option>`).join('')}
           </select>
         </label>
-        <button class="btn" onclick="joinRaid(${raid.id})">Записаться</button>
+        <button class="btn" onclick="joinRaid('${raid.id}')">Записаться</button>
       </div>
       <div class="raid-roster" id="roster-${raid.id}">
         <h3>Состав:</h3>
@@ -508,8 +508,10 @@ function loadSquads() {
   document.getElementById('squads').innerHTML = '<p>Загрузка отрядов...</p>';
   fetch(scriptURL, { mode: 'cors' })
     .then(r => r.json())
-    .then(data => {
-      const list = data.filter(row => row[10] == sel.server && row[9] == (sel.faction == 'league' ? 'Лига' : 'Империя'));
+    .then(result => {
+      const rows = result && result.status === 'ok' ? result.data : null;
+      if (!rows) throw new Error('bad response');
+      const list = rows.filter(row => row[10] == sel.server && row[9] == (sel.faction == 'league' ? 'Лига' : 'Империя'));
       const squadsById = {};
       list.forEach(row => {
         const id = row[5];
@@ -544,8 +546,10 @@ function joinByCode() {
   if (!code) return;
   fetch(scriptURL, { mode: 'cors' })
     .then(r => r.json())
-    .then(data => {
-      const row = data.find(r => r[5] === code);
+    .then(result => {
+      const rows = result && result.status === 'ok' ? result.data : null;
+      if (!rows) throw new Error('bad response');
+      const row = rows.find(r => r[5] === code);
       if (!row) {
         alert('Отряд не найден');
         return;
