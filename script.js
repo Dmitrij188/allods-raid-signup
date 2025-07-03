@@ -240,12 +240,30 @@ function renderRaids() {
     r.faction == factionName
   ).forEach((raid, index) => {
     const raidEl = document.createElement("div");
-    raidEl.className = "raid-container";
+    raidEl.className = "raid-item";
     raidEl.dataset.id = raid.id;
     const isClosed = String(raid.id).length > 2;
     const typeLabel = isClosed ? 'Закрытый' : 'Открытый';
     const headerId = isClosed ? raid.id : index + 1;
     raidEl.innerHTML = `
+      <h3>Отряд ${headerId} (${typeLabel})</h3>
+      <div>Игроков: ${raid.roster.length}/${MAX_PLAYERS}</div>
+      <button class="btn" onclick="showRaid('${raid.id}')">Вступить</button>
+    `;
+    raidsDiv.appendChild(raidEl);
+  });
+}
+
+function showRaid(id) {
+  const raid = raids.find(r => String(r.id) === String(id));
+  if (!raid) return;
+  const detail = document.getElementById('raidDetail');
+  const index = raids.findIndex(r => String(r.id) === String(id));
+  const isClosed = String(raid.id).length > 2;
+  const typeLabel = isClosed ? 'Закрытый' : 'Открытый';
+  const headerId = isClosed ? raid.id : index + 1;
+  detail.innerHTML = `
+    <div class="raid-container" data-id="${raid.id}">
       <h2>Отряд ${headerId} (${typeLabel})</h2>
       <div class="form-section">
         <label>Имя: <input type="text" id="name-${raid.id}" maxlength="16" minlength="3" pattern="[А-Яа-яЁё]{3,16}"></label>
@@ -254,7 +272,7 @@ function renderRaids() {
             ${classes.map(c => `<option value="${c}">${c}</option>`).join('')}
           </select>
         </label>
-        <label class="role-label">${("Основная роль:")}
+        <label class="role-label">Основная роль:
           <select id="role-${raid.id}">
             ${roles.map(r => `<option>${r}</option>`).join('')}
           </select>
@@ -282,12 +300,11 @@ function renderRaids() {
         <h3>Состав:</h3>
         ${renderRoster(raid)}
       </div>
-    `;
-    raidsDiv.appendChild(raidEl);
-    updateRoleOptions(raid.id);
-    const serverSelect = document.getElementById(`server-${raid.id}`);
-    if (serverSelect) serverSelect.value = raid.server;
-  });
+    </div>
+  `;
+  updateRoleOptions(raid.id);
+  const serverSelect = document.getElementById(`server-${raid.id}`);
+  if (serverSelect) serverSelect.value = raid.server;
 }
 
 async function joinRaid(id) {
@@ -560,8 +577,7 @@ function enterSquad(id, type) {
   // Показать список рейдов и прокрутить к нужному
   loadRoster().then(() => {
     showStep(4);
-    const el = document.querySelector(`#raids .raid-container[data-id='${id}']`);
-    if (el) el.scrollIntoView({ behavior: 'smooth' });
+    showRaid(id);
   });
 }
 
@@ -583,8 +599,7 @@ function joinByCode() {
       sel.dungeon = row[11];
       showStep(4);
       loadRoster().then(() => {
-        const el = document.querySelector(`#raids .raid-container[data-id='${code}']`);
-        if (el) el.scrollIntoView({ behavior: 'smooth' });
+        showRaid(code);
       });
     })
     .catch(() => alert('Ошибка поиска отряда'));
