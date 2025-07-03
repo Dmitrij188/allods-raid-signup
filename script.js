@@ -55,6 +55,8 @@ function prevTrack() {
 const MAX_RAIDS = 4;
 const MAX_PLAYERS = 12;
 let raids = [];
+let squadList = [];
+let authorizedRaids = {};
 
 const classes = ["Жрец", "Воин", "Паладин", "Лучник", "Мистик", "Друид", "Демонолог", "Инженер", "Некромант", "Маг", "Бард"];
 const roles = ["ДД", "Хил", "Сап", "Танк"];
@@ -241,13 +243,18 @@ function renderRaids() {
   ).forEach((raid, index) => {
     const raidEl = document.createElement("div");
     raidEl.className = "raid-container";
-    raidEl.dataset.id = raid.id;
+    raidEl.dataset.index = index;
     const isClosed = String(raid.id).length > 2;
     const typeLabel = isClosed ? 'Закрытый' : 'Открытый';
-    const headerId = isClosed ? raid.id : index + 1;
+    const headerId = index + 1;
     raidEl.innerHTML = `
       <h2>Отряд ${headerId} (${typeLabel})</h2>
-      <div class="form-section">
+      <button class="btn join-btn" onclick="showJoinForm(${index})">Вступить</button>
+      <div class="code-section" id="code-${index}" style="display:none">
+        <label>Код: <input type="password" id="code-input-${index}"></label>
+        <button class="btn" onclick="verifyCode(${index})">Продолжить</button>
+      </div>
+      <div class="form-section" id="form-${index}" style="display:none">
         <label>Имя: <input type="text" id="name-${raid.id}" maxlength="16" minlength="3" pattern="[А-Яа-яЁё]{3,16}"></label>
         <label>Класс:
           <select id="class-${raid.id}" onchange="updateRoleOptions(${raid.id})">
@@ -276,7 +283,7 @@ function renderRaids() {
             ${servers.map(s => `<option value="${s.id}">${s.name} (${s.id})</option>`).join('')}
           </select>
         </label>
-        <button class="btn" onclick="joinRaid('${raid.id}')">Записаться</button>
+        <button class="btn" onclick="joinRaid(${index})">Записаться</button>
       </div>
       <div class="raid-roster" id="roster-${raid.id}">
         <h3>Состав:</h3>
@@ -290,7 +297,42 @@ function renderRaids() {
   });
 }
 
-async function joinRaid(id) {
+function showJoinForm(index) {
+  const raid = raids[index];
+  if (!raid) return;
+  const isClosed = String(raid.id).length > 2;
+  const codeDiv = document.getElementById(`code-${index}`);
+  const form = document.getElementById(`form-${index}`);
+  if (isClosed && !authorizedRaids[index]) {
+    if (codeDiv) codeDiv.style.display = codeDiv.style.display === 'none' ? 'block' : 'none';
+  } else if (form) {
+    form.style.display = form.style.display === 'none' ? 'block' : 'none';
+  }
+}
+
+function verifyCode(index) {
+  const raid = raids[index];
+  if (!raid) return;
+  const input = document.getElementById(`code-input-${index}`);
+  if (!input) return;
+  if (input.value.trim() === String(raid.id)) {
+    authorizedRaids[index] = true;
+    document.getElementById(`code-${index}`).style.display = 'none';
+    const form = document.getElementById(`form-${index}`);
+    if (form) form.style.display = 'block';
+  } else {
+    alert('Неверный код');
+  }
+}
+
+async function joinRaid(index) {
+  const raid = raids[index];
+  if (!raid) return alert('Рейд не найден!');
+  const id = raid.id;
+  const isClosed = String(id).length > 2;
+  if (isClosed && !authorizedRaids[index]) {
+    return alert('Сначала введите код отряда.');
+  }
   const name = document.getElementById(`name-${id}`).value.trim();
   const className = document.getElementById(`class-${id}`).value;
   const role = document.getElementById(`role-${id}`).value;
@@ -316,8 +358,7 @@ async function joinRaid(id) {
     return alert('Выберите сервер.');
   }
 
-  const currentRaid = raids.find(r => String(r.id) === String(id));
-  if (!currentRaid) return alert("Рейд не найден!");
+  const currentRaid = raid;
 
   // Disallow using the same character name across all raids
   const nameTaken = raids.some(r =>
@@ -542,8 +583,9 @@ function loadSquads() {
         if (!squadsById[id]) squadsById[id] = { id, type: id.length > 2 ? 'closed' : 'open', players: [] };
         squadsById[id].players.push({ name: row[0], class: row[1] });
       });
-      const html = Object.values(squadsById)
-        .map(s => `<div class="squad ${s.type}"><div class="type">${s.type=='open'?'Открытый':'Закрытый'}</div><div>Игроки: ${s.players.map(p=>p.name).join(', ')}</div><button onclick="enterSquad('${s.id}','${s.type}')">Вступить</button></div>`)
+      squadList = Object.values(squadsById);
+      const html = squadList
+        .map((s,i) => `<div class="squad ${s.type}"><div class="type">${s.type=='open'?'Открытый':'Закрытый'}</div><div>Игроки: ${s.players.map(p=>p.name).join(', ')}</div><button onclick="enterSquad(${i},'${s.type}')">Вступить</button></div>`)
         .join('');
       document.getElementById('squads').innerHTML = html || '<p>Нет отрядов</p>';
     })
@@ -552,15 +594,18 @@ function loadSquads() {
     });
 }
 
-function enterSquad(id, type) {
+function enterSquad(index, type) {
+  const raid = squadList[index];
+  if (!raid) return;
+  const id = raid.id;
   if (type === 'closed') {
     const code = prompt('Введите код для вступления');
     if (!code || code !== id) return alert('Неверный код');
   }
-  // Показать список рейдов и прокрутить к нужному
   loadRoster().then(() => {
     showStep(4);
-    const el = document.querySelector(`#raids .raid-container[data-id='${id}']`);
+    const idx = raids.findIndex(r => String(r.id) === String(id));
+    const el = document.querySelector(`#raids .raid-container[data-index='${idx}']`);
     if (el) el.scrollIntoView({ behavior: 'smooth' });
   });
 }
@@ -583,7 +628,8 @@ function joinByCode() {
       sel.dungeon = row[11];
       showStep(4);
       loadRoster().then(() => {
-        const el = document.querySelector(`#raids .raid-container[data-id='${code}']`);
+        const idx = raids.findIndex(r => String(r.id) === String(code));
+        const el = document.querySelector(`#raids .raid-container[data-index='${idx}']`);
         if (el) el.scrollIntoView({ behavior: 'smooth' });
       });
     })

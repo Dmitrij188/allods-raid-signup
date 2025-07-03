@@ -30,6 +30,10 @@ h1, h2 {
   margin-bottom: 20px;
 }
 
+.code-section {
+  margin-bottom: 20px;
+}
+
 label, select, input {
   display: block;
   margin: 8px 0;
