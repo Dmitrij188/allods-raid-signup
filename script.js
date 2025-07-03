@@ -237,9 +237,11 @@ function renderRaids() {
     const raidEl = document.createElement("div");
     raidEl.className = "raid-container";
     raidEl.dataset.id = raid.id;
-    const typeLabel = String(raid.id).length > 2 ? 'Закрытый' : 'Открытый';
+    const isClosed = String(raid.id).length > 2;
+    const typeLabel = isClosed ? 'Закрытый' : 'Открытый';
+    const headerId = isClosed ? raid.id : index + 1;
     raidEl.innerHTML = `
-      <h2>Отряд ${raid.id} (${typeLabel})</h2>
+      <h2>Отряд ${headerId} (${typeLabel})</h2>
       <div class="form-section">
         <label>Имя: <input type="text" id="name-${raid.id}" maxlength="16" minlength="3" pattern="[А-Яа-яЁё]{3,16}"></label>
         <label>Класс:
