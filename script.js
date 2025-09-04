@@ -197,7 +197,7 @@ function renderRoster(raid) {
     const tertiary = p.role3 ? roleOption(p.role3, p.role3) : '-';
     return `
       <tr>
-        <td>${icon}${p.guild ? `<sup class="guild-sup">${p.guild}</sup>` : ''}${p.name}</td>
+        <td>${icon}${p.name}${p.guild ? `<sup class="guild-sup">${p.guild}</sup>` : ''}</td>
         <td>${p.className}</td>
         <td class='primary-role'>${primary}</td>
         <td>${secondary}</td>
