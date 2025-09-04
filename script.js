@@ -542,12 +542,33 @@ loadRoster();
 
 const progress = [document.getElementById('p1'), document.getElementById('p2'), document.getElementById('p3'), document.getElementById('p4')];
 let sel = { server: null, dungeon: null, faction: null };
+let currentStep = 1;
 function showStep(n) {
+  currentStep = n;
   ['step1','step2','step3','step4'].forEach((id,i) => {
     document.getElementById(id).style.display = i === n-1 ? 'block' : 'none';
     progress[i].classList.toggle('active', i <= n-1);
   });
+  document.getElementById('bgVideo').style.display = n < 4 ? 'block' : 'none';
 }
+progress.forEach((el, i) => {
+  el.addEventListener('click', () => {
+    if (i < currentStep - 1) {
+      if (i === 0) {
+        sel = { server: null, dungeon: null, faction: null };
+      } else if (i === 1) {
+        sel.dungeon = null;
+        sel.faction = null;
+      } else if (i === 2) {
+        sel.faction = null;
+      }
+      showStep(i + 1);
+    }
+  });
+});
+document.getElementById('homeTitle').addEventListener('click', () => {
+  window.location.href = 'index.html';
+});
 function onSelect(step, id) {
   if (step === 1) {
     sel.server = id;

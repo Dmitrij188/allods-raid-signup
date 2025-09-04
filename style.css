@@ -19,6 +19,10 @@ h1, h2 {
   color: #ffc107;
 }
 
+#homeTitle {
+  cursor: pointer;
+}
+
 .raid-container {
   margin-bottom: 40px;
   padding: 20px;
@@ -156,10 +160,10 @@ body,html{
 #bgVideo{position:fixed;top:0;left:0;width:100%;height:100%;object-fit:cover;filter:blur(4px);z-index:-1}
 .step{display:none;text-align:center;margin-top:40px}
 .servers img,.dungeons img,.factions img{width:150px;height:150px;cursor:pointer;margin:10px;border-radius:8px;border:2px solid transparent;}
-.servers div,.dungeons div,.factions div{display:inline-block;text-align:center}
+.servers div,.dungeons div,.factions div{display:inline-block;text-align:center;color:#ffc107}
 .progress{position:fixed;top:10px;left:50%;transform:translateX(-50%);display:flex;gap:10px;z-index:10}
 .progress div{width:20px;height:20px;border-radius:50%;background:#777}
-.progress .active{background:#28a745}
+.progress .active{background:#28a745;cursor:pointer}
 #squads{padding:20px;overflow-y:auto;height:100%;background:rgba(0,0,0,0.6)}
 .squad{background:#222;margin:10px;padding:10px;border-radius:6px}
 .squad.open .type{color:lime}
