@@ -58,6 +58,16 @@ let raids = [];
 // Tracks all raid identifiers (open and closed) to prevent duplicates.
 let allRaidIds = new Set();
 
+// Predefined names for open raids. Each open raid receives a unique name
+// from this list. If all names are taken, a random digit 1-9 is prefixed to a
+// randomly chosen base name to keep identifiers unique.
+const OPEN_RAID_NAMES = [
+  "Роза", "Тюльпан", "Лилия", "Нарцисс", "Пион",
+  "Хризантема", "Георгин", "Астра", "Гладиолус", "Орхидея",
+  "Фиалка", "Колокольчик", "Подснежник", "Ромашка", "Герань",
+  "Ирис", "Мак", "Лаванда", "Бархатцы", "Клевер"
+];
+
 const classes = ["Жрец", "Воин", "Паладин", "Лучник", "Мистик", "Друид", "Демонолог", "Инженер", "Некромант", "Маг", "Бард"];
 const roles = ["ДД", "Хил", "Сап", "Танк"];
 const servers = [
@@ -239,20 +249,21 @@ function renderRaids() {
     r.server == sel.server &&
     r.dungeon == sel.dungeon &&
     r.faction == factionName
-  ).forEach((raid, index) => {
+  ).forEach((raid) => {
     const raidEl = document.createElement("div");
     raidEl.className = "raid-container";
     raidEl.dataset.id = raid.id;
     raidEl.style.display = "none";
-    const isClosed = String(raid.id).length > 2;
+    // Determine raid type. Newly created raids store a boolean, but older
+    // records may not, so we infer it from the identifier.
+    const isClosed = raid.closed ?? /^[A-Za-z0-9!@#$]+$/.test(raid.id);
     const typeLabel = isClosed ? 'Закрытый' : 'Открытый';
-    const headerId = isClosed ? raid.id : index + 1;
     raidEl.innerHTML = `
-      <h2>Отряд ${headerId} (${typeLabel})</h2>
+      <h2>Отряд ${raid.id} (${typeLabel})</h2>
       <div class="form-section">
         <label>Имя: <input type="text" id="name-${raid.id}" maxlength="16" minlength="3" pattern="[А-Яа-яЁё]{3,16}"></label>
         <label>Класс:
-          <select id="class-${raid.id}" onchange="updateRoleOptions(${raid.id})">
+          <select id="class-${raid.id}" onchange="updateRoleOptions('${raid.id}')">
             ${classes.map(c => `<option value="${c}">${c}</option>`).join('')}
           </select>
         </label>
@@ -475,7 +486,10 @@ async function loadRoster() {
     server: grouped[id].server,
     faction: grouped[id].faction,
     dungeon: grouped[id].dungeon,
-    roster: grouped[id].players
+    roster: grouped[id].players,
+    // Existing data lacks explicit type, so infer whether the raid is closed
+    // by checking if the identifier consists solely of ASCII characters.
+    closed: /^[A-Za-z0-9!@#$]+$/.test(id)
   }));
   renderRaids();
 }
@@ -494,15 +508,19 @@ function createRaid() {
     } while (allRaidIds.has(raidId));
     alert('Код закрытого отряда: ' + raidId);
   } else {
-    // Determine the next available raid id based on the current maximum.
-    const maxId = raids.reduce((m, r) => {
-      const idNum = parseInt(r.id, 10);
-      return isNaN(idNum) ? m : Math.max(m, idNum);
-    }, -1);
-    raidId = maxId + 1;
-
-    // Avoid id clashes if non-sequential ids are loaded from the server.
-    if (allRaidIds.has(String(raidId))) return alert('Ошибка создания рейда');
+    // Choose a unique name from the predefined list.
+    const available = OPEN_RAID_NAMES.find(n => !allRaidIds.has(n));
+    if (available) {
+      raidId = available;
+    } else {
+      // All names are taken. Prefix a random digit to a random base name
+      // until we get a unique identifier.
+      do {
+        const base = OPEN_RAID_NAMES[Math.floor(Math.random() * OPEN_RAID_NAMES.length)];
+        const digit = Math.floor(Math.random() * 9) + 1;
+        raidId = `${digit}${base}`;
+      } while (allRaidIds.has(raidId));
+    }
   }
 
   const raid = {
@@ -510,7 +528,8 @@ function createRaid() {
     roster: [],
     server: sel.server,
     dungeon: sel.dungeon,
-    faction: sel.faction === 'league' ? 'Лига' : 'Империя'
+    faction: sel.faction === 'league' ? 'Лига' : 'Империя',
+    closed
   };
   raids.push(raid);
   // Remember this identifier to keep future raid codes unique.
