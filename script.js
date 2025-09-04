@@ -197,14 +197,13 @@ function renderRoster(raid) {
     const tertiary = p.role3 ? roleOption(p.role3, p.role3) : '-';
     return `
       <tr>
-        <td>${icon}${p.name}</td>
+        <td>${icon}${p.guild ? `<sup class="guild-sup">${p.guild}</sup>` : ''}${p.name}</td>
         <td>${p.className}</td>
         <td class='primary-role'>${primary}</td>
         <td>${secondary}</td>
         <td>${tertiary}</td>
         <td>${p.level ?? '-'}</td>
         <td>${p.gearScore ?? '-'}</td>
-        <td>${p.guild || '-'}</td>
         <td>${p.faction || '-'}</td>
       </tr>`;
   }).join('');
@@ -220,7 +219,6 @@ function renderRoster(raid) {
           <th>Крайний случай</th>
           <th>Уровень</th>
           <th>GearScore</th>
-          <th>Гильдия</th>
           <th>Фракция</th>
         </tr>
       </thead>
