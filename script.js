@@ -581,11 +581,14 @@ function loadSquads() {
       const squadsById = {};
       list.forEach(row => {
         const id = row[5];
-        if (!squadsById[id]) squadsById[id] = { id, type: id.length > 2 ? 'closed' : 'open', players: [] };
+        if (!squadsById[id]) {
+          const isClosed = /^[A-Za-z0-9!@#$]+$/.test(id);
+          squadsById[id] = { id, type: isClosed ? 'closed' : 'open', players: [] };
+        }
         squadsById[id].players.push({ name: row[0], class: row[1] });
       });
       const html = Object.values(squadsById)
-        .map(s => `<div class="squad ${s.type}"><div class="type">${s.type=='open'?'Открытый':'Закрытый'}</div><div>Игроков: ${s.players.length}</div><button onclick="enterSquad('${s.id}','${s.type}')">Вступить</button></div>`)
+        .map(s => `<div class="squad ${s.type}"><div class="type">${s.type=='open'?s.id:'Закрытый'}</div><div>Игроков: ${s.players.length}</div><button onclick="enterSquad('${s.id}','${s.type}')">Вступить</button></div>`)
         .join('');
       document.getElementById('squads').innerHTML = html || '<p>Нет отрядов</p>';
     })
