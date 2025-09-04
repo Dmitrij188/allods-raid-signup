@@ -25,6 +25,23 @@ function doPost(e) {
     const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEET_NAME);
     const data = JSON.parse(e.postData.contents);
 
+    const raidIdStr = String(data.raidId);
+    if (raidIdStr.length > 2) {
+      // Closed raid code: ensure it is unique across all raids.
+      const rows = sheet.getDataRange().getValues();
+      rows.shift();
+      const conflict = rows.some(r => String(r[5]) === raidIdStr && (
+        String(r[10]) !== String(data.server) ||
+        String(r[9]) !== String(data.faction) ||
+        String(r[11]) !== String(data.dungeon)
+      ));
+      if (conflict) {
+        const payload = { status: 'error', message: 'duplicate_code' };
+        return ContentService.createTextOutput(JSON.stringify(payload))
+          .setMimeType(ContentService.MimeType.JSON);
+      }
+    }
+
     const row = [
       data.name,
       data.className,

@@ -55,6 +55,8 @@ function prevTrack() {
 const MAX_RAIDS = 4;
 const MAX_PLAYERS = 12;
 let raids = [];
+// Tracks all raid identifiers (open and closed) to prevent duplicates.
+let allRaidIds = new Set();
 
 const classes = ["Жрец", "Воин", "Паладин", "Лучник", "Мистик", "Друид", "Демонолог", "Инженер", "Некромант", "Маг", "Бард"];
 const roles = ["ДД", "Хил", "Сап", "Танк"];
@@ -443,6 +445,11 @@ async function loadRoster() {
     return;
   }
 
+  // Keep a complete list of all raid ids to ensure uniqueness when creating
+  // new raids. We store them as strings to avoid mismatches between numeric
+  // and string identifiers.
+  allRaidIds = new Set(data.map(row => String(row[5])));
+
   const factionName = sel.faction === 'league' ? 'Лига' : 'Империя';
   const filtered = data.filter(row =>
     row[10] == sel.server &&
@@ -479,8 +486,12 @@ function createRaid() {
   let raidId;
   if (closed) {
     const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$';
-    raidId = '';
-    for (let i=0;i<8;i++) raidId += chars[Math.floor(Math.random()*chars.length)];
+    do {
+      raidId = '';
+      for (let i = 0; i < 8; i++) {
+        raidId += chars[Math.floor(Math.random() * chars.length)];
+      }
+    } while (allRaidIds.has(raidId));
     alert('Код закрытого отряда: ' + raidId);
   } else {
     // Determine the next available raid id based on the current maximum.
@@ -491,7 +502,7 @@ function createRaid() {
     raidId = maxId + 1;
 
     // Avoid id clashes if non-sequential ids are loaded from the server.
-    if (raids.some(r => String(r.id) === String(raidId))) return alert('Ошибка создания рейда');
+    if (allRaidIds.has(String(raidId))) return alert('Ошибка создания рейда');
   }
 
   const raid = {
@@ -502,6 +513,8 @@ function createRaid() {
     faction: sel.faction === 'league' ? 'Лига' : 'Империя'
   };
   raids.push(raid);
+  // Remember this identifier to keep future raid codes unique.
+  allRaidIds.add(String(raidId));
   renderRaids();
   showRaid(raidId);
 }
