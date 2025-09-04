@@ -231,6 +231,7 @@ function renderRoster(raid) {
 function renderRaids() {
   const raidsDiv = document.getElementById("raids");
   raidsDiv.innerHTML = "";
+  raidsDiv.style.display = 'none';
   const factionName = sel.faction === 'league' ? 'Лига' : 'Империя';
   raids.filter(r =>
     r.server == sel.server &&
@@ -240,6 +241,7 @@ function renderRaids() {
     const raidEl = document.createElement("div");
     raidEl.className = "raid-container";
     raidEl.dataset.id = raid.id;
+    raidEl.style.display = "none";
     const isClosed = String(raid.id).length > 2;
     const typeLabel = isClosed ? 'Закрытый' : 'Открытый';
     const headerId = isClosed ? raid.id : index + 1;
@@ -281,10 +283,18 @@ function renderRaids() {
         ${renderRoster(raid)}
       </div>
     `;
-    raidsDiv.appendChild(raidEl);
-    updateRoleOptions(raid.id);
-    const serverSelect = document.getElementById(`server-${raid.id}`);
-    if (serverSelect) serverSelect.value = raid.server;
+  raidsDiv.appendChild(raidEl);
+  updateRoleOptions(raid.id);
+  const serverSelect = document.getElementById(`server-${raid.id}`);
+  if (serverSelect) serverSelect.value = raid.server;
+  });
+}
+
+function showRaid(id) {
+  const raidsDiv = document.getElementById('raids');
+  raidsDiv.style.display = 'block';
+  document.querySelectorAll('#raids .raid-container').forEach(el => {
+    el.style.display = el.dataset.id === String(id) ? 'block' : 'none';
   });
 }
 
@@ -407,6 +417,7 @@ async function joinRaid(id) {
   }
 
   await loadRoster();
+  showRaid(id);
 }
 
 async function loadRoster() {
@@ -492,6 +503,7 @@ function createRaid() {
   };
   raids.push(raid);
   renderRaids();
+  showRaid(raidId);
 }
 
 loadRoster();
@@ -541,7 +553,7 @@ function loadSquads() {
         squadsById[id].players.push({ name: row[0], class: row[1] });
       });
       const html = Object.values(squadsById)
-        .map(s => `<div class="squad ${s.type}"><div class="type">${s.type=='open'?'Открытый':'Закрытый'}</div><div>Игроки: ${s.players.map(p=>p.name).join(', ')}</div><button onclick="enterSquad('${s.id}','${s.type}')">Вступить</button></div>`)
+        .map(s => `<div class="squad ${s.type}"><div class="type">${s.type=='open'?'Открытый':'Закрытый'}</div><div>Игроков: ${s.players.length}</div><button onclick="enterSquad('${s.id}','${s.type}')">Вступить</button></div>`)
         .join('');
       document.getElementById('squads').innerHTML = html || '<p>Нет отрядов</p>';
     })
@@ -555,9 +567,10 @@ function enterSquad(id, type) {
     const code = prompt('Введите код для вступления');
     if (!code || code !== id) return alert('Неверный код');
   }
-  // Показать список рейдов и прокрутить к нужному
+  // Показать форму выбранного отряда
   loadRoster().then(() => {
     showStep(4);
+    showRaid(id);
     const el = document.querySelector(`#raids .raid-container[data-id='${id}']`);
     if (el) el.scrollIntoView({ behavior: 'smooth' });
   });
@@ -581,6 +594,7 @@ function joinByCode() {
       sel.dungeon = row[11];
       showStep(4);
       loadRoster().then(() => {
+        showRaid(code);
         const el = document.querySelector(`#raids .raid-container[data-id='${code}']`);
         if (el) el.scrollIntoView({ behavior: 'smooth' });
       });
