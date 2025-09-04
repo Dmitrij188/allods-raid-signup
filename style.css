@@ -122,6 +122,11 @@ label, select, input {
   margin-right: 6px;
 }
 
+.guild-sup {
+  font-size: 0.7em;
+  margin-right: 2px;
+}
+
 .footer {
   margin-top: 40px;
   text-align: center;
