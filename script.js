@@ -566,9 +566,6 @@ progress.forEach((el, i) => {
     }
   });
 });
-document.getElementById('homeTitle').addEventListener('click', () => {
-  window.location.href = 'index.html';
-});
 function onSelect(step, id) {
   if (step === 1) {
     sel.server = id;

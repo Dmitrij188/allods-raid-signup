@@ -21,6 +21,8 @@ h1, h2 {
 
 #homeTitle {
   cursor: pointer;
+  color: #ffc107;
+  text-decoration: none;
 }
 
 .raid-container {
