@@ -433,6 +433,27 @@ async function joinRaid(id) {
   showRaid(id);
 }
 
+async function refreshRosterInfo() {
+  const tasks = [];
+  for (const raid of raids) {
+    for (const player of raid.roster) {
+      if (!player.server) continue;
+      tasks.push(
+        (async () => {
+          const info = await fetchCharacterInfo(player.name, player.server);
+          if (info && !info.error) {
+            player.level = info.level;
+            player.gearScore = info.gearScore;
+            player.guild = info.guild;
+            player.faction = info.faction;
+          }
+        })()
+      );
+    }
+  }
+  await Promise.all(tasks);
+}
+
 async function loadRoster() {
   let data;
   try {
@@ -491,6 +512,7 @@ async function loadRoster() {
     // by checking if the identifier consists solely of ASCII characters.
     closed: /^[A-Za-z0-9!@#$]+$/.test(id)
   }));
+  await refreshRosterInfo();
   renderRaids();
 }
 
