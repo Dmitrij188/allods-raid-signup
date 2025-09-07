@@ -258,8 +258,14 @@ function renderRaids() {
     // records may not, so we infer it from the identifier.
     const isClosed = raid.closed ?? /^[A-Za-z0-9!@#$]+$/.test(raid.id);
     const typeLabel = isClosed ? 'Закрытый' : 'Открытый';
+    const noteHtml = isClosed
+      ? `<span class="closed-note">Сохраните этот код! Для просмотра и вступления в данный закрытый отряд, понадобится его обязательный ввод</span>`
+      : '';
     raidEl.innerHTML = `
-      <h2>Отряд ${raid.id} (${typeLabel})</h2>
+      <div class="raid-header">
+        <h2>Отряд ${raid.id} (${typeLabel})</h2>
+        ${noteHtml}
+      </div>
       <div class="form-section">
         <label>Имя: <input type="text" id="name-${raid.id}" maxlength="16" minlength="3" pattern="[А-Яа-яЁё]{3,16}"></label>
         <label>Класс:
