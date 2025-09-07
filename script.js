@@ -375,6 +375,11 @@ async function joinRaid(id) {
     return alert(msg);
   }
 
+  const expectedFaction = sel.faction === 'league' ? 'Лига' : 'Империя';
+  if (String(server) !== String(sel.server) || charInfo.faction !== expectedFaction) {
+    return alert('Сервер или фракция персонажа не совпадают с выбранными. Запись невозможна.');
+  }
+
   const payload = {
     name,
     className,
