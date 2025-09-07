@@ -32,6 +32,19 @@ h1, h2 {
   border-radius: 10px;
 }
 
+.raid-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+}
+
+.closed-note {
+  font-size: 14px;
+  color: #ffc107;
+  text-align: right;
+}
+
 .form-section {
   margin-bottom: 20px;
 }
