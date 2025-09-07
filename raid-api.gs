@@ -24,12 +24,12 @@ function doPost(e) {
   try {
     const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEET_NAME);
     const data = JSON.parse(e.postData.contents);
-
     const raidIdStr = String(data.raidId);
+    const rows = sheet.getDataRange().getValues();
+    rows.shift();
+
     if (raidIdStr.length > 2) {
       // Closed raid code: ensure it is unique across all raids.
-      const rows = sheet.getDataRange().getValues();
-      rows.shift();
       const conflict = rows.some(r => String(r[5]) === raidIdStr && (
         String(r[10]) !== String(data.server) ||
         String(r[9]) !== String(data.faction) ||
@@ -40,6 +40,21 @@ function doPost(e) {
         return ContentService.createTextOutput(JSON.stringify(payload))
           .setMimeType(ContentService.MimeType.JSON);
       }
+    }
+
+    const duplicate = rows.some(r => {
+      if (String(r[5]) !== raidIdStr) return false;
+      const sameName = String(r[0]).toLowerCase() === String(data.name).toLowerCase();
+      if (!sameName) return false;
+      if (r[10] && data.server) {
+        return String(r[10]) === String(data.server);
+      }
+      return true;
+    });
+    if (duplicate) {
+      const payload = { status: 'error', message: 'duplicate_character' };
+      return ContentService.createTextOutput(JSON.stringify(payload))
+        .setMimeType(ContentService.MimeType.JSON);
     }
 
     const row = [

@@ -340,14 +340,6 @@ async function joinRaid(id) {
   const currentRaid = raids.find(r => String(r.id) === String(id));
   if (!currentRaid) return alert("Рейд не найден!");
 
-  // Disallow using the same character name across all raids
-  const nameTaken = raids.some(r =>
-    r.roster.some(p => p.name.toLowerCase() === name.toLowerCase())
-  );
-  if (nameTaken) {
-    return alert('Игрок с таким именем уже записан.');
-  }
-
   if (currentRaid.roster.length >= MAX_PLAYERS) {
     return alert("Этот рейд уже заполнен (12 игроков).");
   }
