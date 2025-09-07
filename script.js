@@ -260,6 +260,7 @@ function renderRaids() {
     const typeLabel = isClosed ? 'Закрытый' : 'Открытый';
     raidEl.innerHTML = `
       <h2>Отряд ${raid.id} (${typeLabel})</h2>
+      ${isClosed ? `<div class="code-note" id="code-note-${raid.id}"><button class="close-btn" onclick="hideCodeNote('${raid.id}')">&times;</button>Сохраните этот код! Для просмотра и вступления в данный закрытый отряд, понадобится его обязательный ввод</div>` : ''}
       <div class="form-section">
         <label>Имя: <input type="text" id="name-${raid.id}" maxlength="16" minlength="3" pattern="[А-Яа-яЁё]{3,16}"></label>
         <label>Класс:
@@ -301,6 +302,13 @@ function renderRaids() {
   const serverSelect = document.getElementById(`server-${raid.id}`);
   if (serverSelect) serverSelect.value = raid.server;
   });
+}
+
+function hideCodeNote(id) {
+  const el = document.getElementById(`code-note-${id}`);
+  if (el) {
+    el.style.display = 'none';
+  }
 }
 
 function showRaid(id) {
