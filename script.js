@@ -595,27 +595,9 @@ function onSelect(step, id) {
     showStep(4);
   }
 }
-document.querySelectorAll('.servers div').forEach(el => {
-  el.addEventListener('click', () => {
-    document.querySelectorAll('.servers div').forEach(d => d.classList.remove('selected'));
-    el.classList.add('selected');
-    onSelect(1, el.dataset.id);
-  });
-});
-document.querySelectorAll('.dungeons div').forEach(el => {
-  el.addEventListener('click', () => {
-    document.querySelectorAll('.dungeons div').forEach(d => d.classList.remove('selected'));
-    el.classList.add('selected');
-    onSelect(2, el.dataset.id);
-  });
-});
-document.querySelectorAll('.factions div').forEach(el => {
-  el.addEventListener('click', () => {
-    document.querySelectorAll('.factions div').forEach(d => d.classList.remove('selected'));
-    el.classList.add('selected');
-    onSelect(3, el.dataset.id);
-  });
-});
+document.querySelectorAll('.servers div').forEach(el => el.onclick = () => onSelect(1, el.dataset.id));
+document.querySelectorAll('.dungeons div').forEach(el => el.onclick = () => onSelect(2, el.dataset.id));
+document.querySelectorAll('.factions div').forEach(el => el.onclick = () => onSelect(3, el.dataset.id));
 function loadSquads() {
   document.getElementById('squads').innerHTML = '<p>Загрузка отрядов...</p>';
   fetch(scriptURL, { mode: 'cors' })
