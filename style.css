@@ -105,6 +105,17 @@ label, select, input {
   margin-top: 10px;
 }
 
+.header {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  margin-bottom: 20px;
+}
+
+.header h1 {
+  margin: 0;
+}
+
 .music-controls {
   position: fixed;
   top: 20px;
@@ -190,10 +201,6 @@ body {
 }
 
 .summary-toggle{
-  position:fixed;
-  top:20px;
-  left:20px;
-  z-index:20;
   padding:10px 20px;
   background:#ffc107;
   color:#000;
