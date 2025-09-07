@@ -189,3 +189,35 @@ body {
   cursor:pointer;
 }
 
+.summary-toggle{
+  position:fixed;
+  top:20px;
+  left:20px;
+  z-index:20;
+  padding:10px 20px;
+  background:#ffc107;
+  color:#000;
+  border:none;
+  border-radius:6px;
+  cursor:pointer;
+}
+
+.summary{
+  position:fixed;
+  top:80px;
+  left:50%;
+  transform:translateX(-50%);
+  background:rgba(0,0,0,0.8);
+  padding:20px;
+  border-radius:8px;
+  max-width:600px;
+  z-index:20;
+  text-align:left;
+}
+
+.hint{
+  font-size:14px;
+  color:#ccc;
+  margin-bottom:10px;
+}
+

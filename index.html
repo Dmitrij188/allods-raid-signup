@@ -7,6 +7,7 @@
   </head>
 <body>
   <h1><a href="index.html" id="homeTitle">Рейды Аллоды Онлайн</a></h1>
+  <button id="summaryBtn" class="summary-toggle" onclick="toggleSummary()">О сайте</button>
   <div class="music-controls">
     <button class="music-toggle" onclick="prevTrack()" id="prevBtn">&#9664;</button>
     <button class="music-toggle" onclick="toggleMusic()" id="musicBtn">Выключить музыку</button>
@@ -20,9 +21,10 @@
     <div id="p3"></div>
     <div id="p4"></div>
   </div>
-  <button id="joinCodeBtn" class="join-code-btn" onclick="joinByCode()">Присоединиться по коду</button>
+  <button id="joinCodeBtn" class="join-code-btn" onclick="joinByCode()" title="Вступить в отряд по коду">Присоединиться по коду</button>
   <div id="step1" class="step" style="display:block">
     <h2>Выберите сервер</h2>
+    <p class="hint">Кликните по значку сервера, чтобы продолжить.</p>
     <div class="servers">
       <div data-id="1"><img src="battles_icon.png"><br>Нить судьбы</div>
       <div data-id="2"><img src="battles_icon.png"><br>Молодая Гвардия</div>
@@ -33,6 +35,7 @@
   </div>
   <div id="step2" class="step">
     <h2>Выберите данж</h2>
+    <p class="hint">Выберите подземелье, в котором хотите провести рейд.</p>
     <div class="dungeons">
       <div data-id="nihaza"><img src="Iranoh_Kania_Female_5.png"><br>Цитадель Нихаза</div>
       <div data-id="sadrok"><img src="W_lvp6A8wTpf-f0zLFy4uQ(1).png"><br>Дворец Садрок</div>
@@ -41,6 +44,7 @@
   </div>
   <div id="step3" class="step">
     <h2>Выберите фракцию</h2>
+    <p class="hint">Определите фракцию вашего персонажа.</p>
     <div class="factions">
       <div data-id="league"><img src="liga.png"><br>Лига</div>
       <div data-id="empire"><img src="imperia.png"><br>Империя</div>
@@ -48,9 +52,15 @@
   </div>
   <div id="step4" class="step">
     <h2>Отряды</h2>
+    <p class="hint">Просматривайте доступные отряды или создайте свой собственный.</p>
     <div id="squads"></div>
     <div id="raids"></div>
-    <button class="btn btn-admin" onclick="createRaid()">+ Создать новый рейд</button>
+    <button class="btn btn-admin" onclick="createRaid()" title="Создать новый рейд">+ Создать новый рейд</button>
+  </div>
+
+  <div id="siteSummary" class="summary" style="display:none">
+    <h2>О сайте</h2>
+    <p>Этот сайт помогает организовывать и вступать в рейды в игре «Аллоды Онлайн». Выберите сервер, данж и фракцию, чтобы увидеть список доступных отрядов, присоединиться к ним или создать собственный рейд.</p>
   </div>
 
     <div class="footer">

@@ -669,3 +669,11 @@ function joinByCode() {
     .catch(() => alert('Ошибка поиска отряда'));
 }
 
+function toggleSummary() {
+  const summary = document.getElementById('siteSummary');
+  const btn = document.getElementById('summaryBtn');
+  const visible = summary.style.display === 'block';
+  summary.style.display = visible ? 'none' : 'block';
+  btn.textContent = visible ? 'О сайте' : 'Скрыть описание';
+}
+
