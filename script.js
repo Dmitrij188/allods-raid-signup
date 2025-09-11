@@ -580,6 +580,11 @@ function showStep(n) {
   document.querySelectorAll('.corner-img').forEach(img => {
     img.style.display = n < 4 ? 'block' : 'none';
   });
+  const header = document.getElementById('header');
+  if (header) {
+    header.classList.toggle('small', n === 4);
+    header.classList.toggle('large', n !== 4);
+  }
 }
 progress.forEach((el, i) => {
   el.addEventListener('click', () => {

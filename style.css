@@ -132,8 +132,32 @@ label, select, input {
   margin-bottom: 20px;
 }
 
-.header h1 {
+.header.large {
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+  margin-top: 40px;
+}
+
+.header.small {
+  position: fixed;
+  top: 10px;
+  left: 10px;
+  flex-direction: row;
   margin: 0;
+  z-index: 15;
+}
+
+#siteLogo {
+  display: block;
+}
+
+.header.large #siteLogo {
+  width: 400px;
+}
+
+.header.small #siteLogo {
+  width: 150px;
 }
 
 .music-controls {
