@@ -568,7 +568,6 @@ function createRaid() {
 loadRoster();
 
 const progress = [document.getElementById('p1'), document.getElementById('p2'), document.getElementById('p3'), document.getElementById('p4')];
-const visors = document.getElementById('visors');
 let sel = { server: null, dungeon: null, faction: null };
 let currentStep = 1;
 function showStep(n) {
@@ -578,7 +577,6 @@ function showStep(n) {
     progress[i].classList.toggle('active', i <= n-1);
   });
   document.getElementById('bgVideo').style.display = n < 4 ? 'block' : 'none';
-  visors.style.display = n < 4 ? 'block' : 'none';
 }
 progress.forEach((el, i) => {
   el.addEventListener('click', () => {
