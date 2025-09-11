@@ -577,6 +577,9 @@ function showStep(n) {
     progress[i].classList.toggle('active', i <= n-1);
   });
   document.getElementById('bgVideo').style.display = n < 4 ? 'block' : 'none';
+  document.querySelectorAll('.corner-img').forEach(img => {
+    img.style.display = n < 4 ? 'block' : 'none';
+  });
 }
 progress.forEach((el, i) => {
   el.addEventListener('click', () => {
@@ -689,4 +692,6 @@ function toggleSummary() {
   summary.style.display = visible ? 'none' : 'block';
   btn.textContent = visible ? 'О сайте' : 'Скрыть описание';
 }
+
+showStep(1);
 
