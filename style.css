@@ -250,7 +250,7 @@ body {
 
 .corner-img{
   position:fixed;
-  width:150px;
+  width:250px;
   height:auto;
   z-index:-1;
   pointer-events:none;
