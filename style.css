@@ -248,18 +248,3 @@ body {
   margin-bottom:10px;
 }
 
-#visors{
-  pointer-events:none;
-}
-
-.visor{
-  position:fixed;
-  z-index:5;
-  pointer-events:none;
-}
-
-.visor.top-left{top:0;left:0;}
-.visor.top-right{top:0;right:0;}
-.visor.bottom-left{bottom:0;left:0;}
-.visor.bottom-right{bottom:0;right:0;}
-
