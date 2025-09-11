@@ -248,3 +248,16 @@ body {
   margin-bottom:10px;
 }
 
+.corner-img{
+  position:fixed;
+  width:150px;
+  height:auto;
+  z-index:-1;
+  pointer-events:none;
+  display:none;
+}
+#cornerTopLeft{top:0;left:0;}
+#cornerTopRight{top:0;right:0;}
+#cornerBottomLeft{bottom:0;left:0;}
+#cornerBottomRight{bottom:0;right:0;}
+
