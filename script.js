@@ -571,6 +571,25 @@ const progress = [document.getElementById('p1'), document.getElementById('p2'), 
 let sel = { server: null, dungeon: null, faction: null };
 let currentStep = 1;
 let overlayActivated = false;
+const STEP_BUTTON_LABELS = {
+  1: 'Ваш сервер',
+  2: 'Ваш данж',
+  3: 'Ваша фракция'
+};
+
+function updateSelectionButtonLabel(step) {
+  const button = document.getElementById('serverButton');
+  if (!button) return;
+  const targetStep = Math.min(Math.max(step, 1), 3);
+  const label = STEP_BUTTON_LABELS[targetStep] || STEP_BUTTON_LABELS[1];
+  const span = button.querySelector('span');
+  if (span) {
+    span.textContent = label;
+  } else {
+    button.textContent = label;
+  }
+}
+
 function showStep(n) {
   currentStep = n;
   ['step1','step2','step3','step4'].forEach((id,i) => {
@@ -588,22 +607,24 @@ function showStep(n) {
   }
   const overlay = document.getElementById('selectionOverlay');
   if (overlay) {
-    if (n >= 4) {
-      overlay.classList.remove('visible');
-      overlayActivated = false;
-    } else if (overlayActivated) {
-      overlay.classList.add('visible');
+    if (n <= 3 && overlayActivated) {
+      overlay.classList.add('open');
     } else {
-      overlay.classList.remove('visible');
+      overlay.classList.remove('open');
     }
   }
   const selectionHeader = document.querySelector('.selection-header');
   if (selectionHeader) {
-    selectionHeader.style.display = n === 1 ? 'flex' : 'none';
+    selectionHeader.style.display = 'flex';
+    selectionHeader.classList.toggle('compact', n >= 4);
   }
   const serverBtn = document.getElementById('serverButton');
   if (serverBtn) {
-    serverBtn.style.display = n === 1 ? 'flex' : 'none';
+    serverBtn.style.display = 'flex';
+  }
+  updateSelectionButtonLabel(n);
+  if (n >= 4) {
+    overlayActivated = false;
   }
 }
 progress.forEach((el, i) => {
@@ -642,9 +663,18 @@ function onSelect(step, id) {
 document.querySelectorAll('.servers div').forEach(el => el.onclick = () => onSelect(1, el.dataset.id));
 document.querySelectorAll('.dungeons div').forEach(el => el.onclick = () => onSelect(2, el.dataset.id));
 document.querySelectorAll('.factions div').forEach(el => el.onclick = () => onSelect(3, el.dataset.id));
+
 function openSelectionPanel() {
-  overlayActivated = true;
+  const overlay = document.getElementById('selectionOverlay');
+  if (!overlay) {
+    return;
+  }
+  if (overlayActivated && overlay.classList.contains('open')) {
+    closeSelectionPanel();
+    return;
+  }
   sel = { server: null, dungeon: null, faction: null };
+  overlayActivated = true;
   showStep(1);
 }
 
@@ -652,8 +682,10 @@ function closeSelectionPanel() {
   overlayActivated = false;
   const overlay = document.getElementById('selectionOverlay');
   if (overlay) {
-    overlay.classList.remove('visible');
+    overlay.classList.remove('open');
   }
+  updateSelectionButtonLabel(1);
+  showStep(1);
 }
 
 const serverButton = document.getElementById('serverButton');
