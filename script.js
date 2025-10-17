@@ -570,6 +570,7 @@ loadRoster();
 const progress = [document.getElementById('p1'), document.getElementById('p2'), document.getElementById('p3'), document.getElementById('p4')];
 let sel = { server: null, dungeon: null, faction: null };
 let currentStep = 1;
+let overlayActivated = false;
 function showStep(n) {
   currentStep = n;
   ['step1','step2','step3','step4'].forEach((id,i) => {
@@ -585,6 +586,17 @@ function showStep(n) {
     header.classList.toggle('small', n === 4);
     header.classList.toggle('large', n !== 4);
   }
+  const overlay = document.getElementById('selectionOverlay');
+  if (overlay) {
+    if (n >= 4) {
+      overlay.classList.remove('visible');
+      overlayActivated = false;
+    } else if (overlayActivated) {
+      overlay.classList.add('visible');
+    } else {
+      overlay.classList.remove('visible');
+    }
+  }
 }
 progress.forEach((el, i) => {
   el.addEventListener('click', () => {
@@ -596,6 +608,9 @@ progress.forEach((el, i) => {
         sel.faction = null;
       } else if (i === 2) {
         sel.faction = null;
+      }
+      if (i < 3) {
+        overlayActivated = true;
       }
       showStep(i + 1);
     }
@@ -619,6 +634,28 @@ function onSelect(step, id) {
 document.querySelectorAll('.servers div').forEach(el => el.onclick = () => onSelect(1, el.dataset.id));
 document.querySelectorAll('.dungeons div').forEach(el => el.onclick = () => onSelect(2, el.dataset.id));
 document.querySelectorAll('.factions div').forEach(el => el.onclick = () => onSelect(3, el.dataset.id));
+function openSelectionPanel() {
+  overlayActivated = true;
+  sel = { server: null, dungeon: null, faction: null };
+  showStep(1);
+}
+
+function closeSelectionPanel() {
+  overlayActivated = false;
+  const overlay = document.getElementById('selectionOverlay');
+  if (overlay) {
+    overlay.classList.remove('visible');
+  }
+}
+
+const serverButton = document.getElementById('serverButton');
+if (serverButton) {
+  serverButton.addEventListener('click', openSelectionPanel);
+}
+const selectionClose = document.getElementById('selectionClose');
+if (selectionClose) {
+  selectionClose.addEventListener('click', closeSelectionPanel);
+}
 function loadSquads() {
   document.getElementById('squads').innerHTML = '<p>Загрузка отрядов...</p>';
   fetch(scriptURL, { mode: 'cors' })

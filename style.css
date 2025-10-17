@@ -277,6 +277,126 @@ body {
   text-align:left;
 }
 
+.selection-header {
+  display: flex;
+  justify-content: center;
+  margin: 60px 0 20px;
+  position: relative;
+  z-index: 5;
+}
+
+.selection-button {
+  background-image: url('TiledHeader.(UITexture).png');
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: contain;
+  border: none;
+  width: 360px;
+  height: 120px;
+  color: #ffe9b0;
+  font-size: 32px;
+  font-family: 'Allods West', Arial, sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  text-shadow: 0 2px 4px rgba(0,0,0,0.8);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: transparent;
+  transition: transform 0.2s ease, filter 0.2s ease;
+}
+
+.selection-button:hover,
+.selection-button:focus {
+  transform: scale(1.03);
+  filter: drop-shadow(0 0 12px rgba(255, 255, 255, 0.35));
+  outline: none;
+}
+
+.selection-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.8);
+  z-index: 25;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+.selection-overlay.visible {
+  display: flex;
+}
+
+.selection-panel {
+  position: relative;
+  width: min(960px, 100%);
+  min-height: 520px;
+  padding: 60px 40px 40px;
+  background-image: url('FrameContent1.(UITexture).png');
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: cover;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  box-shadow: 0 20px 45px rgba(0, 0, 0, 0.5);
+}
+
+.selection-content {
+  width: 100%;
+  max-height: 70vh;
+  overflow-y: auto;
+  padding: 20px;
+  background: rgba(12, 18, 36, 0.6);
+  border-radius: 16px;
+  box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.4);
+}
+
+.selection-panel .step {
+  margin-top: 10px;
+}
+
+.selection-panel .step h2 {
+  margin-bottom: 10px;
+}
+
+.selection-close {
+  position: absolute;
+  top: 20px;
+  right: 30px;
+  width: 40px;
+  height: 40px;
+  border: none;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.65);
+  color: #fff;
+  font-size: 24px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s ease;
+}
+
+.selection-close:hover,
+.selection-close:focus {
+  background: rgba(0, 0, 0, 0.85);
+  outline: none;
+}
+
+.selection-panel .servers,
+.selection-panel .dungeons,
+.selection-panel .factions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 20px;
+}
+
 .hint{
   font-size:14px;
   color:#ccc;
