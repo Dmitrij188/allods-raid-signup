@@ -615,12 +615,12 @@ function showStep(n) {
   }
   const selectionHeader = document.querySelector('.selection-header');
   if (selectionHeader) {
-    selectionHeader.style.display = 'flex';
+    selectionHeader.style.display = n >= 4 ? 'none' : 'flex';
     selectionHeader.classList.toggle('compact', n >= 4);
   }
   const serverBtn = document.getElementById('serverButton');
   if (serverBtn) {
-    serverBtn.style.display = 'flex';
+    serverBtn.style.display = n >= 4 ? 'none' : 'flex';
   }
   updateSelectionButtonLabel(n);
   if (n >= 4) {
