@@ -10,13 +10,52 @@
     <a href="index.html" id="homeTitle">
       <img src="комппутешественника.png" id="siteLogo" alt="Компас путешественника">
     </a>
-    <button id="summaryBtn" class="summary-toggle" onclick="toggleSummary()">О сайте</button>
+    <div class="selection-header">
+      <button id="serverButton" class="selection-button" type="button">
+        <span>Ваш сервер</span>
+      </button>
+      <div id="selectionOverlay" class="selection-overlay">
+        <div class="selection-panel">
+          <button id="selectionClose" class="selection-close" type="button" aria-label="Закрыть выбор">&#10005;</button>
+          <div class="selection-content">
+            <div id="step1" class="step">
+              <p class="hint">Кликните по значку вашего сервера, чтобы продолжить.</p>
+              <div class="servers">
+                <div data-id="1"><img src="battles_icon.png"><br>Нить судьбы</div>
+                <div data-id="2"><img src="battles_icon.png"><br>Молодая Гвардия</div>
+                <div data-id="3"><img src="battles_icon.png"><br>Наследие Богов</div>
+                <div data-id="4"><img src="battles_icon.png"><br>Вечный Зов</div>
+                <div data-id="5"><img src="battles_icon.png"><br>Звезда Удачи</div>
+              </div>
+            </div>
+            <div id="step2" class="step">
+              <h2>Выберите данж</h2>
+              <p class="hint">Выберите данж, в котором хотите провести рейд.</p>
+              <div class="dungeons">
+                <div data-id="nihaza"><img src="Iranoh_Kania_Female_5.png"><br>Цитадель Нихаза</div>
+                <div data-id="sadrok"><img src="W_lvp6A8wTpf-f0zLFy4uQ(1).png"><br>Дворец Садрок</div>
+                <div data-id="obs"><img src="obs_4.png"><br>Обсерватория</div>
+              </div>
+            </div>
+            <div id="step3" class="step">
+              <h2>Выберите фракцию</h2>
+              <p class="hint">Выберите фракцию вашего персонажа.</p>
+              <div class="factions">
+                <div data-id="league"><img src="liga.png"><br>Лига</div>
+                <div data-id="empire"><img src="imperia.png"><br>Империя</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
   <div class="music-controls">
     <button class="music-toggle" onclick="prevTrack()" id="prevBtn">&#9664;</button>
     <button class="music-toggle" onclick="toggleMusic()" id="musicBtn">Выключить музыку</button>
     <button class="music-toggle" onclick="nextTrack()" id="nextBtn">&#9654;</button>
   </div>
+  <button id="summaryBtn" class="summary-toggle" onclick="toggleSummary()">О сайте</button>
 
   <video id="bgVideo" autoplay muted loop><source src="cutao.mp4" type="video/mp4"></video>
   <div class="progress">
@@ -30,45 +69,6 @@
   <img src="VisorTopRightFront.(UITexture).png" id="cornerTopRight" class="corner-img">
   <img src="VisorBtmLeftFront.(UITexture).png" id="cornerBottomLeft" class="corner-img">
   <img src="VisorBtmRightFront.(UITexture).png" id="cornerBottomRight" class="corner-img">
-  <div class="selection-header">
-    <button id="serverButton" class="selection-button" type="button">
-      <span>Ваш сервер</span>
-    </button>
-    <div id="selectionOverlay" class="selection-overlay">
-      <div class="selection-panel">
-        <button id="selectionClose" class="selection-close" type="button" aria-label="Закрыть выбор">&#10005;</button>
-        <div class="selection-content">
-          <div id="step1" class="step">
-            <p class="hint">Кликните по значку вашего сервера, чтобы продолжить.</p>
-            <div class="servers">
-              <div data-id="1"><img src="battles_icon.png"><br>Нить судьбы</div>
-              <div data-id="2"><img src="battles_icon.png"><br>Молодая Гвардия</div>
-              <div data-id="3"><img src="battles_icon.png"><br>Наследие Богов</div>
-              <div data-id="4"><img src="battles_icon.png"><br>Вечный Зов</div>
-              <div data-id="5"><img src="battles_icon.png"><br>Звезда Удачи</div>
-            </div>
-          </div>
-          <div id="step2" class="step">
-            <h2>Выберите данж</h2>
-            <p class="hint">Выберите данж, в котором хотите провести рейд.</p>
-            <div class="dungeons">
-              <div data-id="nihaza"><img src="Iranoh_Kania_Female_5.png"><br>Цитадель Нихаза</div>
-              <div data-id="sadrok"><img src="W_lvp6A8wTpf-f0zLFy4uQ(1).png"><br>Дворец Садрок</div>
-              <div data-id="obs"><img src="obs_4.png"><br>Обсерватория</div>
-            </div>
-          </div>
-          <div id="step3" class="step">
-            <h2>Выберите фракцию</h2>
-            <p class="hint">Выберите фракцию вашего персонажа.</p>
-            <div class="factions">
-              <div data-id="league"><img src="liga.png"><br>Лига</div>
-              <div data-id="empire"><img src="imperia.png"><br>Империя</div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
   <div id="step4" class="step">
     <h2>Отряды</h2>
     <p class="hint">Просматривайте доступные отряды или создайте свой собственный, закрытый или открытый отряд.</p>

@@ -137,6 +137,7 @@ label, select, input {
   justify-content: flex-start;
   align-items: center;
   margin-top: 40px;
+  gap: 16px;
 }
 
 .header.small {
@@ -166,6 +167,7 @@ label, select, input {
   right: 20px;
   display: flex;
   gap: 6px;
+  z-index: 12;
 }
 
 .music-toggle {
@@ -256,12 +258,16 @@ body {
 }
 
 .summary-toggle{
+  position: fixed;
+  top: 110px;
+  right: 20px;
   padding:10px 20px;
   background:#ffc107;
   color:#000;
   border:none;
   border-radius:6px;
   cursor:pointer;
+  z-index: 11;
 }
 
 .summary{
@@ -282,10 +288,11 @@ body {
   flex-direction: column;
   align-items: center;
   justify-content: flex-start;
-  gap: 12px;
-  margin: 60px 0 20px;
+  gap: 10px;
+  margin: 0;
   position: relative;
   z-index: 5;
+  width: 100%;
 }
 
 .selection-header.compact {
@@ -302,7 +309,7 @@ body {
   width: 360px;
   height: 120px;
   color: #ffe9b0;
-  font-size: 32px;
+  font-size: 24px;
   font-family: 'Allods West', Arial, sans-serif;
   text-transform: uppercase;
   letter-spacing: 1px;
@@ -436,8 +443,8 @@ body {
 .selection-panel .servers img,
 .selection-panel .dungeons img,
 .selection-panel .factions img {
-  width: 72px;
-  height: 72px;
+  width: 88px;
+  height: 88px;
   margin: 0 auto;
 }
 
