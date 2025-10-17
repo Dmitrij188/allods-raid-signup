@@ -597,6 +597,14 @@ function showStep(n) {
       overlay.classList.remove('visible');
     }
   }
+  const selectionHeader = document.querySelector('.selection-header');
+  if (selectionHeader) {
+    selectionHeader.style.display = n === 1 ? 'flex' : 'none';
+  }
+  const serverBtn = document.getElementById('serverButton');
+  if (serverBtn) {
+    serverBtn.style.display = n === 1 ? 'flex' : 'none';
+  }
 }
 progress.forEach((el, i) => {
   el.addEventListener('click', () => {
