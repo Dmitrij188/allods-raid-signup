@@ -259,7 +259,7 @@ body {
 
 .summary-toggle{
   position: fixed;
-  top: 110px;
+  top: 80px;
   right: 20px;
   padding:10px 20px;
   background:#ffc107;
@@ -331,7 +331,7 @@ body {
 
 .selection-overlay {
   width: 100%;
-  max-width: 640px;
+  max-width: 512px;
   display: flex;
   justify-content: center;
   overflow: hidden;
@@ -354,8 +354,8 @@ body {
 .selection-panel {
   position: relative;
   width: 100%;
-  min-height: 320px;
-  padding: 32px 28px 28px;
+  min-height: 256px;
+  padding: 26px 24px 24px;
   background-image: url('FrameContent1.(UITexture).png');
   background-repeat: no-repeat;
   background-position: center;
@@ -374,7 +374,7 @@ body {
   width: 100%;
   max-height: none;
   overflow: visible;
-  padding: 16px 12px 12px;
+  padding: 12px 10px 10px;
   background: transparent;
   border-radius: 0;
   box-shadow: none;
@@ -431,7 +431,7 @@ body {
 .selection-panel .servers div,
 .selection-panel .dungeons div,
 .selection-panel .factions div {
-  width: 96px;
+  width: 92px;
   font-size: 14px;
   display: flex;
   flex-direction: column;
@@ -443,8 +443,8 @@ body {
 .selection-panel .servers img,
 .selection-panel .dungeons img,
 .selection-panel .factions img {
-  width: 88px;
-  height: 88px;
+  width: 80px;
+  height: 80px;
   margin: 0 auto;
 }
 
