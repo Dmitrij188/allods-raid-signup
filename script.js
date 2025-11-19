@@ -1,5 +1,33 @@
 const scriptURL = 'https://script.google.com/macros/s/AKfycbwhc5nt8Gj5iYaotBpBsNeD0StVEkCbRW97uthV2JUEYMdPG4mxjeMwPwf44-Tk9imd/exec';
 
+const SHEET_CACHE_MS = 30_000;
+const sheetCache = {
+  rows: null,
+  fetchedAt: 0
+};
+
+function isCacheFresh() {
+  return sheetCache.rows && Date.now() - sheetCache.fetchedAt < SHEET_CACHE_MS;
+}
+
+async function fetchSheetData(force = false) {
+  if (!force && isCacheFresh()) {
+    return sheetCache.rows;
+  }
+  const res = await fetch(scriptURL, { mode: 'cors' });
+  if (!res.ok) {
+    console.error('fetchSheetData', res.status, res.statusText);
+    throw new Error('sheet');
+  }
+  const result = await res.json();
+  if (!result || result.status !== 'ok' || !Array.isArray(result.data)) {
+    throw new Error('sheet-format');
+  }
+  sheetCache.rows = result.data;
+  sheetCache.fetchedAt = Date.now();
+  return sheetCache.rows;
+}
+
 const musicBtn = document.getElementById("musicBtn");
 const musicTracks = [
   new Audio("23 - IL1_TEST.mp3"),
@@ -57,6 +85,13 @@ const MAX_PLAYERS = 12;
 let raids = [];
 // Tracks all raid identifiers (open and closed) to prevent duplicates.
 let allRaidIds = new Set();
+let sel = { server: null, dungeon: null, faction: null };
+
+const characterCache = new Map();
+
+function makeCharacterKey(name, serverId) {
+  return `${serverId}:${name.toLowerCase()}`;
+}
 
 // Predefined names for open raids. Each open raid receives a unique name
 // from this list. If all names are taken, a random digit 1-9 is prefixed to a
@@ -114,18 +149,16 @@ const allowedRolesByClass = {
 };
 
 async function fetchCharacterInfo(name, serverId) {
+  const cacheKey = makeCharacterKey(name, serverId);
+  if (characterCache.has(cacheKey)) {
+    return characterCache.get(cacheKey);
+  }
   try {
-    let searchRes;
-    try {
-      searchRes = await fetch('https://api.allodswiki.ru/api/v1/armory/avatars', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ filter: { name, server: serverId } })
-      });
-    } catch (e) {
-      console.error('search api', e);
-      throw new Error('network');
-    }
+    const searchRes = await fetch('https://api.allodswiki.ru/api/v1/armory/avatars', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ filter: { name, server: serverId } })
+    });
     if (!searchRes.ok) {
       console.error('search api', searchRes.status, searchRes.statusText);
       return { error: 'network' };
@@ -135,25 +168,20 @@ async function fetchCharacterInfo(name, serverId) {
       return { error: 'not_found' };
     }
     const charId = list[0].id;
-    let charRes;
-    try {
-      charRes = await fetch(`https://api.allodswiki.ru/api/v1/armory/avatars/${charId}`);
-    } catch (e) {
-      console.error('character api', e);
-      throw new Error('network');
-    }
+    const charRes = await fetch(`https://api.allodswiki.ru/api/v1/armory/avatars/${charId}`);
     if (!charRes.ok) {
       console.error('character api', charRes.status, charRes.statusText);
       return { error: 'network' };
     }
     const data = (await charRes.json()).data;
-
-    return {
+    const payload = {
       level: data.level,
       gearScore: data.gear_score,
       faction: data.faction,
       guild: data.guild
     };
+    characterCache.set(cacheKey, payload);
+    return payload;
   } catch (e) {
     console.error('fetchCharacterInfo', e);
     return { error: 'network' };
@@ -242,9 +270,14 @@ function renderRoster(raid) {
 
 function renderRaids() {
   const raidsDiv = document.getElementById("raids");
+  if (!raidsDiv) return;
   raidsDiv.innerHTML = "";
   raidsDiv.style.display = 'none';
+  if (!sel.server || !sel.dungeon || !sel.faction) {
+    return;
+  }
   const factionName = sel.faction === 'league' ? 'Лига' : 'Империя';
+  let rendered = false;
   raids.filter(r =>
     r.server == sel.server &&
     r.dungeon == sel.dungeon &&
@@ -297,11 +330,15 @@ function renderRaids() {
         ${renderRoster(raid)}
       </div>
     `;
-  raidsDiv.appendChild(raidEl);
-  updateRoleOptions(raid.id);
-  const serverSelect = document.getElementById(`server-${raid.id}`);
-  if (serverSelect) serverSelect.value = raid.server;
+    raidsDiv.appendChild(raidEl);
+    updateRoleOptions(raid.id);
+    const serverSelect = document.getElementById(`server-${raid.id}`);
+    if (serverSelect) serverSelect.value = raid.server;
+    rendered = true;
   });
+  if (rendered) {
+    raidsDiv.style.display = 'block';
+  }
 }
 
 function hideCodeNote(id) {
@@ -428,13 +465,14 @@ async function joinRaid(id) {
 
     console.log('Data saved successfully');
     console.log('Saved', payload);
+    sheetCache.rows = null;
   } catch (e) {
     console.error('Signup failed', e);
     alert('Не удалось сохранить данные в Google Sheets.');
     return;
   }
 
-  await loadRoster();
+  await loadRoster(true);
   showRaid(id);
 }
 
@@ -443,6 +481,7 @@ async function refreshRosterInfo() {
   for (const raid of raids) {
     for (const player of raid.roster) {
       if (!player.server) continue;
+      if (player.level && player.gearScore && player.faction) continue;
       tasks.push(
         (async () => {
           const info = await fetchCharacterInfo(player.name, player.server);
@@ -459,23 +498,10 @@ async function refreshRosterInfo() {
   await Promise.all(tasks);
 }
 
-async function loadRoster() {
+async function loadRoster(force = false) {
   let data;
   try {
-    const res = await fetch(scriptURL, { mode: 'cors' });
-    if (!res.ok) {
-      console.error('loadRoster', res.status, res.statusText);
-      alert('Не удалось загрузить список рейда.');
-      return;
-    }
-    const result = await res.json();
-    if (result && result.status === 'ok' && Array.isArray(result.data)) {
-      data = result.data;
-    } else {
-      console.error('loadRoster', 'bad response', result);
-      alert('Не удалось загрузить список рейда.');
-      return;
-    }
+    data = await fetchSheetData(force);
   } catch (e) {
     console.error('loadRoster', e);
     alert('Не удалось загрузить список рейда.');
@@ -568,7 +594,6 @@ function createRaid() {
 loadRoster();
 
 const progress = [document.getElementById('p1'), document.getElementById('p2'), document.getElementById('p3'), document.getElementById('p4')];
-let sel = { server: null, dungeon: null, faction: null };
 let currentStep = 1;
 let overlayActivated = false;
 const STEP_BUTTON_LABELS = {
@@ -696,35 +721,38 @@ const selectionClose = document.getElementById('selectionClose');
 if (selectionClose) {
   selectionClose.addEventListener('click', closeSelectionPanel);
 }
-function loadSquads() {
-  document.getElementById('squads').innerHTML = '<p>Загрузка отрядов...</p>';
-  fetch(scriptURL, { mode: 'cors' })
-    .then(r => r.json())
-    .then(result => {
-      const rows = result && result.status === 'ok' ? result.data : null;
-      if (!rows) throw new Error('bad response');
-      const list = rows.filter(row =>
-        row[10] == sel.server &&
-        row[9] == (sel.faction == 'league' ? 'Лига' : 'Империя') &&
-        row[11] == sel.dungeon
-      );
-      const squadsById = {};
-      list.forEach(row => {
-        const id = row[5];
-        if (!squadsById[id]) {
-          const isClosed = /^[A-Za-z0-9!@#$]+$/.test(id);
-          squadsById[id] = { id, type: isClosed ? 'closed' : 'open', players: [] };
-        }
-        squadsById[id].players.push({ name: row[0], class: row[1] });
-      });
-      const html = Object.values(squadsById)
-        .map(s => `<div class="squad ${s.type}"><div class="type">${s.type=='open'?s.id:'Закрытый'}</div><div>Игроков: ${s.players.length}</div><button onclick="enterSquad('${s.id}','${s.type}')">Вступить</button></div>`)
-        .join('');
-      document.getElementById('squads').innerHTML = html || '<p>Нет отрядов</p>';
-    })
-    .catch(() => {
-      document.getElementById('squads').innerHTML = '<p>Ошибка загрузки</p>';
+async function loadSquads() {
+  const container = document.getElementById('squads');
+  if (!container) return;
+  container.innerHTML = '<p>Загрузка отрядов...</p>';
+  if (!sel.server || !sel.dungeon || !sel.faction) {
+    container.innerHTML = '<p>Выберите сервер, данж и фракцию.</p>';
+    return;
+  }
+  try {
+    const rows = await fetchSheetData();
+    const list = rows.filter(row =>
+      row[10] == sel.server &&
+      row[9] == (sel.faction == 'league' ? 'Лига' : 'Империя') &&
+      row[11] == sel.dungeon
+    );
+    const squadsById = {};
+    list.forEach(row => {
+      const id = row[5];
+      if (!squadsById[id]) {
+        const isClosed = /^[A-Za-z0-9!@#$]+$/.test(id);
+        squadsById[id] = { id, type: isClosed ? 'closed' : 'open', players: [] };
+      }
+      squadsById[id].players.push({ name: row[0], class: row[1] });
     });
+    const html = Object.values(squadsById)
+      .map(s => `<div class="squad ${s.type}"><div class="type">${s.type=='open'?s.id:'Закрытый'}</div><div>Игроков: ${s.players.length}</div><button onclick="enterSquad('${s.id}','${s.type}')">Вступить</button></div>`)
+      .join('');
+    container.innerHTML = html || '<p>Нет отрядов</p>';
+  } catch (e) {
+    console.error('loadSquads', e);
+    container.innerHTML = '<p>Ошибка загрузки</p>';
+  }
 }
 
 function enterSquad(id, type) {
@@ -741,30 +769,29 @@ function enterSquad(id, type) {
   });
 }
 
-function joinByCode() {
+async function joinByCode() {
   const code = prompt('Введите код отряда');
   if (!code) return;
-  fetch(scriptURL, { mode: 'cors' })
-    .then(r => r.json())
-    .then(result => {
-      const rows = result && result.status === 'ok' ? result.data : null;
-      if (!rows) throw new Error('bad response');
-      const row = rows.find(r => r[5] === code);
-      if (!row) {
-        alert('Отряд не найден');
-        return;
-      }
-      sel.server = row[10];
-      sel.faction = row[9] === 'Лига' ? 'league' : 'empire';
-      sel.dungeon = row[11];
-      showStep(4);
-      loadRoster().then(() => {
-        showRaid(code);
-        const el = document.querySelector(`#raids .raid-container[data-id='${code}']`);
-        if (el) el.scrollIntoView({ behavior: 'smooth' });
-      });
-    })
-    .catch(() => alert('Ошибка поиска отряда'));
+  try {
+    const rows = await fetchSheetData();
+    const row = rows.find(r => r[5] === code);
+    if (!row) {
+      alert('Отряд не найден');
+      return;
+    }
+    sel.server = row[10];
+    sel.faction = row[9] === 'Лига' ? 'league' : 'empire';
+    sel.dungeon = row[11];
+    showStep(4);
+    loadRoster().then(() => {
+      showRaid(code);
+      const el = document.querySelector(`#raids .raid-container[data-id='${code}']`);
+      if (el) el.scrollIntoView({ behavior: 'smooth' });
+    });
+  } catch (e) {
+    console.error('joinByCode', e);
+    alert('Ошибка поиска отряда');
+  }
 }
 
 function toggleSummary() {
