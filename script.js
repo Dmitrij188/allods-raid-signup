@@ -87,6 +87,8 @@ let raids = [];
 let allRaidIds = new Set();
 let sel = { server: null, dungeon: null, faction: null };
 
+// Cache is useful while validating a new signup, but roster data must not be
+// served from an old snapshot. `refreshRosterInfo` explicitly bypasses it.
 const characterCache = new Map();
 
 function makeCharacterKey(name, serverId) {
@@ -148,9 +150,9 @@ const allowedRolesByClass = {
   "Маг": ["ДД"]
 };
 
-async function fetchCharacterInfo(name, serverId) {
+async function fetchCharacterInfo(name, serverId, { fresh = false } = {}) {
   const cacheKey = makeCharacterKey(name, serverId);
-  if (characterCache.has(cacheKey)) {
+  if (!fresh && characterCache.has(cacheKey)) {
     return characterCache.get(cacheKey);
   }
   try {
@@ -180,7 +182,13 @@ async function fetchCharacterInfo(name, serverId) {
       faction: data.faction,
       guild: data.guild
     };
-    characterCache.set(cacheKey, payload);
+    if (!fresh) {
+      characterCache.set(cacheKey, payload);
+    } else {
+      // Keep subsequent signups in this page session from reusing the roster
+      // snapshot after a player has been refreshed.
+      characterCache.delete(cacheKey);
+    }
     return payload;
   } catch (e) {
     console.error('fetchCharacterInfo', e);
@@ -481,10 +489,13 @@ async function refreshRosterInfo() {
   for (const raid of raids) {
     for (const player of raid.roster) {
       if (!player.server) continue;
-      if (player.level && player.gearScore && player.faction) continue;
+
+      // Values stored in the sheet are only a snapshot from the time the
+      // player joined. Always refresh them so returning players get their
+      // current level, gear score, guild and faction from the armory API.
       tasks.push(
         (async () => {
-          const info = await fetchCharacterInfo(player.name, player.server);
+          const info = await fetchCharacterInfo(player.name, player.server, { fresh: true });
           if (info && !info.error) {
             player.level = info.level;
             player.gearScore = info.gearScore;
